@@ -1,0 +1,317 @@
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 1 - 2/21/2013 9:53:51
+
+
+       1/       0 :                     # vim:set ts=4:
+       2/       0 :                     #
+       3/       0 :                     	cpu 8080
+       4/       0 :                     
+       5/       0 : 00                  	nop
+       6/       1 : 01 00 00            	lxi	b,0
+       7/       4 : 02                  	stax	b
+       8/       5 : 03                  	inx	b
+       9/       6 : 04                  	inr	b
+      10/       7 : 05                  	dcr	b
+      11/       8 : 06 00               	mvi	b,0
+      12/       A : 07                  	rlc
+      13/       B : 00                  	nop		;08 ex AF,AF'
+      14/       C : 09                  	dad b
+      15/       D : 0A                  	ldax	b
+      16/       E : 0B                  	dcx	b
+      17/       F : 0C                  	inr	c
+      18/      10 : 0D                  	dcr	c
+      19/      11 : 0E 00               	mvi	c,0
+      20/      13 : 0F                  	rrc
+      21/      14 : 00                  	nop		;10 djnz e
+      22/      15 : 11 00 00            	lxi	d,0
+      23/      18 : 12                  	stax	d
+      24/      19 : 13                  	inx	d
+      25/      1A : 14                  	inr	d
+      26/      1B : 15                  	dcr	d
+      27/      1C : 16 00               	mvi	d,0
+      28/      1E : 17                  	ral
+      29/      1F : 00                  	nop		;18 jr e
+      30/      20 : 19                  	dad	d
+      31/      21 : 1A                  	ldax	d
+      32/      22 : 1B                  	dcx	d
+      33/      23 : 1C                  	inr	e
+      34/      24 : 1D                  	dcr	e
+      35/      25 : 1E 00               	mvi	e,0
+      36/      27 : 1F                  	rar
+      37/      28 : 00                  	nop		;20 jr nz,e
+      38/      29 : 21 00 00            	lxi	h,0
+      39/      2C : 22 00 00            	shld	0
+      40/      2F : 23                  	inx	h
+      41/      30 : 24                  	inr	h
+      42/      31 : 25                  	dcr	h
+      43/      32 : 26 00               	mvi	h,0
+      44/      34 : 27                  	daa
+      45/      35 : 00                  	nop		;28 jr z,e
+      46/      36 : 29                  	dad	h
+      47/      37 : 2A 00 00            	lhld	0
+      48/      3A : 2B                  	dcx	h
+      49/      3B : 2C                  	inr	l
+      50/      3C : 2D                  	dcr	l
+      51/      3D : 2E 00               	mvi	l,0
+      52/      3F : 2F                  	cma
+      53/      40 : 00                  	nop		;30 jr nc,e
+      54/      41 : 31 00 00            	lxi	sp,0
+      55/      44 : 32 00 00            	sta	0
+      56/      47 : 33                  	inx	sp
+      57/      48 : 34                  	inr	m
+      58/      49 : 35                  	dcr	m
+      59/      4A : 36 00               	mvi	m,0
+      60/      4C : 37                  	stc
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 2 - 2/21/2013 9:53:51
+
+
+      61/      4D : 00                  	nop		;38 jr c,e
+      62/      4E : 39                  	dad	sp
+      63/      4F : 3A 00 00            	lda	0
+      64/      52 : 3B                  	dcx	sp
+      65/      53 : 3C                  	inr	a
+      66/      54 : 3D                  	dcr	a
+      67/      55 : 3E 00               	mvi	a,0
+      68/      57 : 3F                  	cmc
+      69/      58 : 40                  	mov	b,b
+      70/      59 : 41                  	mov	b,c
+      71/      5A : 42                  	mov	b,d
+      72/      5B : 43                  	mov	b,e
+      73/      5C : 44                  	mov	b,h
+      74/      5D : 45                  	mov	b,l
+      75/      5E : 46                  	mov	b,m
+      76/      5F : 47                  	mov	b,a
+      77/      60 : 48                  	mov	c,b
+      78/      61 : 49                  	mov	c,c
+      79/      62 : 4A                  	mov	c,d
+      80/      63 : 4B                  	mov	c,e
+      81/      64 : 4C                  	mov	c,h
+      82/      65 : 4D                  	mov	c,l
+      83/      66 : 4E                  	mov	c,m
+      84/      67 : 4F                  	mov	c,a
+      85/      68 : 50                  	mov	d,b
+      86/      69 : 51                  	mov	d,c
+      87/      6A : 52                  	mov	d,d
+      88/      6B : 53                  	mov	d,e
+      89/      6C : 54                  	mov	d,h
+      90/      6D : 55                  	mov	d,l
+      91/      6E : 56                  	mov	d,m
+      92/      6F : 57                  	mov	d,a
+      93/      70 : 58                  	mov	e,b
+      94/      71 : 59                  	mov	e,c
+      95/      72 : 5A                  	mov	e,d
+      96/      73 : 5B                  	mov	e,e
+      97/      74 : 5C                  	mov	e,h
+      98/      75 : 5D                  	mov	e,l
+      99/      76 : 5E                  	mov	e,m
+     100/      77 : 5F                  	mov	e,a
+     101/      78 : 60                  	mov	h,b
+     102/      79 : 61                  	mov	h,c
+     103/      7A : 62                  	mov	h,d
+     104/      7B : 63                  	mov	h,e
+     105/      7C : 64                  	mov	h,h
+     106/      7D : 65                  	mov	h,l
+     107/      7E : 66                  	mov	h,m
+     108/      7F : 67                  	mov	h,a
+     109/      80 : 68                  	mov	l,b
+     110/      81 : 69                  	mov	l,c
+     111/      82 : 6A                  	mov	l,d
+     112/      83 : 6B                  	mov	l,e
+     113/      84 : 6C                  	mov	l,h
+     114/      85 : 6D                  	mov	l,l
+     115/      86 : 6E                  	mov	l,m
+     116/      87 : 6F                  	mov	l,a
+     117/      88 : 70                  	mov	m,b
+     118/      89 : 71                  	mov	m,c
+     119/      8A : 72                  	mov	m,d
+     120/      8B : 73                  	mov	m,e
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 3 - 2/21/2013 9:53:51
+
+
+     121/      8C : 74                  	mov	m,h
+     122/      8D : 75                  	mov	m,l
+     123/      8E : 76                  	hlt
+     124/      8F : 77                  	mov	m,a
+     125/      90 : 78                  	mov	a,b
+     126/      91 : 79                  	mov	a,c
+     127/      92 : 7A                  	mov	a,d
+     128/      93 : 7B                  	mov	a,e
+     129/      94 : 7C                  	mov	a,h
+     130/      95 : 7D                  	mov	a,l
+     131/      96 : 7E                  	mov	a,m
+     132/      97 : 7F                  	mov	a,a
+     133/      98 : 80                  	add	b
+     134/      99 : 81                  	add	c
+     135/      9A : 82                  	add	d
+     136/      9B : 83                  	add	e
+     137/      9C : 84                  	add	h
+     138/      9D : 85                  	add	l
+     139/      9E : 86                  	add	m
+     140/      9F : 87                  	add	a
+     141/      A0 : 88                  	adc	b
+     142/      A1 : 89                  	adc	c
+     143/      A2 : 8A                  	adc	d
+     144/      A3 : 8B                  	adc	e
+     145/      A4 : 8C                  	adc	h
+     146/      A5 : 8D                  	adc	l
+     147/      A6 : 8E                  	adc	m
+     148/      A7 : 8F                  	adc	a
+     149/      A8 : 90                  	sub	b
+     150/      A9 : 91                  	sub	c
+     151/      AA : 92                  	sub	d
+     152/      AB : 93                  	sub	e
+     153/      AC : 94                  	sub	h
+     154/      AD : 95                  	sub	l
+     155/      AE : 96                  	sub	m
+     156/      AF : 97                  	sub	a
+     157/      B0 : 98                  	sbb	b
+     158/      B1 : 99                  	sbb	c
+     159/      B2 : 9A                  	sbb	d
+     160/      B3 : 9B                  	sbb	e
+     161/      B4 : 9C                  	sbb	h
+     162/      B5 : 9D                  	sbb	l
+     163/      B6 : 9E                  	sbb	m
+     164/      B7 : 9F                  	sbb	a
+     165/      B8 : A0                  	ana	b
+     166/      B9 : A1                  	ana	c
+     167/      BA : A2                  	ana	d
+     168/      BB : A3                  	ana	e
+     169/      BC : A4                  	ana	h
+     170/      BD : A5                  	ana	l
+     171/      BE : A6                  	ana	m
+     172/      BF : A7                  	ana	a
+     173/      C0 : A8                  	xra	b
+     174/      C1 : A9                  	xra	c
+     175/      C2 : AA                  	xra	d
+     176/      C3 : AB                  	xra	e
+     177/      C4 : AC                  	xra	h
+     178/      C5 : AD                  	xra	l
+     179/      C6 : AE                  	xra	m
+     180/      C7 : AF                  	xra	a
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 4 - 2/21/2013 9:53:51
+
+
+     181/      C8 : B0                  	ora	b
+     182/      C9 : B1                  	ora	c
+     183/      CA : B2                  	ora	d
+     184/      CB : B3                  	ora	e
+     185/      CC : B4                  	ora	h
+     186/      CD : B5                  	ora	l
+     187/      CE : B6                  	ora	m
+     188/      CF : B7                  	ora	a
+     189/      D0 : B8                  	cmp	b
+     190/      D1 : B9                  	cmp	c
+     191/      D2 : BA                  	cmp	d
+     192/      D3 : BB                  	cmp	e
+     193/      D4 : BC                  	cmp	h
+     194/      D5 : BD                  	cmp	l
+     195/      D6 : BE                  	cmp	m
+     196/      D7 : BF                  	cmp	a
+     197/      D8 : C0                  	rnz
+     198/      D9 : C1                  	pop	b
+     199/      DA : C2 00 00            	jnz	0
+     200/      DD : C3 00 00            	jmp	0
+     201/      E0 : C4 00 00            	cnz	0
+     202/      E3 : C5                  	push	b
+     203/      E4 : C6 00               	adi	0
+     204/      E6 : C7                  	rst	0
+     205/      E7 : C8                  	rz
+     206/      E8 : C9                  	ret
+     207/      E9 : CA 00 00            	jz	0
+     208/      EC : 00                  	nop		;CB xx
+     209/      ED : CC 00 00            	cz	0
+     210/      F0 : CD 00 00            	call	0
+     211/      F3 : CE 00               	aci	0
+     212/      F5 : CF                  	rst	1
+     213/      F6 : D0                  	rnc
+     214/      F7 : D1                  	pop	d
+     215/      F8 : D2 00 00            	jnc	0
+     216/      FB : D3 00               	out	0
+     217/      FD : D4 00 00            	cnc	0
+     218/     100 : D5                  	push	d
+     219/     101 : D6 00               	sui	0
+     220/     103 : D7                  	rst	2
+     221/     104 : D8                  	rc
+     222/     105 : 00                  	nop		;D9 EXX
+     223/     106 : DA 00 00            	jc	0
+     224/     109 : DB 00               	in	0
+     225/     10B : DC 00 00            	cc	0
+     226/     10E : 00                  	nop		;DD xx or DD CB xx
+     227/     10F : DE 00               	sbi	0
+     228/     111 : DF                  	rst	3
+     229/     112 : E0                  	rpo
+     230/     113 : E1                  	pop	h
+     231/     114 : E2 00 00            	jpo	0
+     232/     117 : E3                  	xthl
+     233/     118 : E4 00 00            	cpo	0
+     234/     11B : E5                  	push	h
+     235/     11C : E6 00               	ani	0
+     236/     11E : E7                  	rst	4
+     237/     11F : E8                  	rpe
+     238/     120 : E9                  	pchl
+     239/     121 : EA 00 00            	jpe	0
+     240/     124 : EB                  	xchg
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 5 - 2/21/2013 9:53:51
+
+
+     241/     125 : EC 00 00            	cpe	0
+     242/     128 : 00                  	nop		;ED xx
+     243/     129 : EE 00               	xri	0
+     244/     12B : EF                  	rst	5
+     245/     12C : F0                  	rp
+     246/     12D : F1                  	pop	psw
+     247/     12E : F2 00 00            	jp	0
+     248/     131 : F3                  	di
+     249/     132 : F4 00 00            	cp	0
+     250/     135 : F5                  	push	psw
+     251/     136 : F6 00               	ori	0
+     252/     138 : F7                  	rst	6
+     253/     139 : F8                  	rm
+     254/     13A : F9                  	sphl
+     255/     13B : FA 00 00            	jm	0
+     256/     13E : FB                  	ei
+     257/     13F : FC 00 00            	cm	0
+     258/     142 : 00                  	nop		;FD xx
+     259/     143 : FE 00               	cpi	0
+     260/     145 : FF                  	rst	7
+     261/     146 :                     
+     262/     146 :                     
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 6 - 2/21/2013 9:53:51
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE : i386-unknown-freebsd - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   2/21/2013 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8080 - | *MOMCPUNAME :                  8080 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*TIME :                     9:53:51 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     28 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 7 - 2/21/2013 9:53:51
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+    262 lines source file
+      1 pass
+      0 errors
+      0 warnings
