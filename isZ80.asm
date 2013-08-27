@@ -6,6 +6,8 @@
 
 	LD	SP,0100H
 
+	HALT
+
 	SUB	A
 	JP	PE,CPU8080
 CPUZ80:

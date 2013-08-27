@@ -103,9 +103,6 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 		cpu->PC.W = word;
 		cpu->clocks += 10;
 	}
-	else if(op == 0x76) {		/* hlt */
-		cpu->clocks += 7;
-	}
 	else {
 		illegal_ins(op);
 		ret = -1;
@@ -222,7 +219,8 @@ int	mov(cpui8080_t cpu, u8 *mem, u8 op)
 }
 int	hlt(cpui8080_t cpu, u8 *mem, u8 op)
 {
-	cpu->PC.W++;
+	// cpu->PC.W++;
+	cpu->clocks += 7;
 	return i8080_HLT;
 }
 
