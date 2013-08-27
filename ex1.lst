@@ -1,4 +1,4 @@
- AS V1.42 Beta [Bld 32] - source file ex1.asm - page 1 - 2/21/2013 9:53:53
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 1 - 3/7/2013 16:57:01
 
 
        1/       0 :                     	cpu	8080
@@ -46,7 +46,7 @@
       43/    1234 : 55                  	db	55h
       44/    1235 :                     
       45/    1235 :                     
- AS V1.42 Beta [Bld 32] - source file ex1.asm - page 2 - 2/21/2013 9:53:53
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 2 - 3/7/2013 16:57:01
 
 
   symbol table (* = unused):
@@ -55,7 +55,7 @@
 *ARCHITECTURE : i386-unknown-freebsd - |
 *BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
 *CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
-*DATE :                   2/21/2013 - | *FALSE :                          0 - |
+*DATE :                    3/7/2013 - | *FALSE :                          0 - |
 *FULLPMMU :                       1 - | *HAS64 :                          1 - |
 *HASDSP :                         0 - | *HASFPU :                         0 - |
 *HASPMMU :                        0 - | *INEXTMODE :                      0 - |
@@ -66,13 +66,13 @@
 *MOMCPUNAME :                  8080 - | *NESTMAX :                      100 - |
 *PACKING :                        0 - | *PADDING :                        1 - |
 *RELAXED :                        0 - |  TEST1 :                          8 C |
-*TIME :                     9:53:53 - | *TRUE :                           1 - |
+*TIME :                    16:57:01 - | *TRUE :                           1 - |
 *VERSION :                     142F - |
 
      30 symbols
      28 unused symbols
 
- AS V1.42 Beta [Bld 32] - source file ex1.asm - page 3 - 2/21/2013 9:53:53
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 3 - 3/7/2013 16:57:01
 
 
   codepages:
@@ -81,7 +81,7 @@
 STANDARD (0 changed characters)
 
 
-0.03 seconds assembly time
+0.01 seconds assembly time
 
      45 lines source file
       2 passes

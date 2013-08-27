@@ -52,5 +52,6 @@ extern	u16	popword(cpui8080_t, u8 *);
 extern	u16	pushword(cpui8080_t, u8 *, u16);
 extern	u8	getmem(u8 *, u16);
 extern	void	setmem(u8 *, u16, u8);
+extern	void	illegal_ins(u8);
 
 #endif

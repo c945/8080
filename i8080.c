@@ -18,92 +18,98 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 		cpu->clocks += 4;
 		cpu->PC.W++;
 	}
-	if((op & 0xc0) == 0x40) {	/* mov r,r / mov m,r / mov r,m / hlt */
+	else if((op & 0xc0) == 0x40) {	/* mov r,r / mov m,r / mov r,m / hlt */
 		ret = mov(cpu, mem, op);
 	}
-	if(sop == 0x06) {	/* mvi r,data / mov m,data */
+	else if(sop == 0x06) {	/* mvi r,data / mov m,data */
 		ret = mvi(cpu, mem, op);
 	}
-	if(wop == 0x01) { 	/* lxi rp, data data */
+	else if(wop == 0x01) { 	/* lxi rp, data data */
 		ret = lxi(cpu, mem, op);
 	}
-	if(op == 0x3a) {		/* lda addr addr */
+	else if(op == 0x3a) {		/* lda addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		cpu->AF.B.h = getmem(mem,word);
 		cpu->clocks += 13;
 	}
-	if(op == 0x2a) {		/* lhld addr addr */
+	else if(op == 0x2a) {		/* lhld addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		cpu->HL.B.l = getmem(mem, word);
 		cpu->HL.B.h = getmem(mem, word+1);
 		cpu->clocks += 16;
 	}
-	if(op == 0x32) {		/* sta addr addr */
+	else if(op == 0x32) {		/* sta addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		setmem(mem, word, cpu->AF.B.h);
 		cpu->clocks += 13;
 	}
-	if(op == 0x22) {		/* shld addr addr */
+	else if(op == 0x22) {		/* shld addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		setmem(mem, word, cpu->HL.B.l);
 		setmem(mem, word+1, cpu->HL.B.h);
 		cpu->clocks += 16;
 	}
-	if(wop2 == 0x0a) { 	/* ldax rp */
+	else if(wop2 == 0x0a) { 	/* ldax rp */
 		ret = ldax(cpu, mem, op);
 	}
-	if(wop2 == 0x02) { 	/* stax rp */
+	else if(wop2 == 0x02) { 	/* stax rp */
 		ret = stax(cpu, mem, op);
 	}
-	if(op == 0xeb) {		/* xchg */
+	else if(op == 0xeb) {		/* xchg */
 		word = cpu->HL.W;
 		cpu->HL.W = cpu->DE.W;
 		cpu->DE.W = word;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
-	if(wop == 0x03) {	/* inx rp */
+	else if(wop == 0x03) {	/* inx rp */
 		ret = inx(cpu, mem, op);
 	}
-	if(wop == 0x0b) {	/* dcx rp */
+	else if(wop == 0x0b) {	/* dcx rp */
 		ret = dcx(cpu, mem, op);
 	}
-	if(wop == 0x09) {	/* dad rp */
+	else if(wop == 0x09) {	/* dad rp */
 		ret = dad(cpu, mem, op);
 	}
-	if(op == 0x3f) {		/* cmc */
+	else if(op == 0x3f) {		/* cmc */
 		cpu->AF.B.l ^= i8080F_CY;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
-	if(op == 0x37) {		/* stc */
+	else if(op == 0x37) {		/* stc */
 		cpu->AF.B.l |= i8080F_CY;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
-	if(op == 0xc3) {		/* jmp */
+	else if(op == 0xc3) {		/* jmp */
 		cpu->PC.W++;
 		cpu->PC.W = getword(cpu, mem);
 		cpu->clocks += 10;
 	}
-	if(op == 0xcd) {		/* call */
+	else if(op == 0xcd) {		/* call */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		pushword(cpu, mem, cpu->PC.W);
 		cpu->PC.W = word;
 		cpu->clocks += 17;
 	}
-	if(op == 0xc9) {		/* ret */
+	else if(op == 0xc9) {		/* ret */
 		cpu->PC.W++;
 		word = popword(cpu, mem);
 		cpu->PC.W = word;
 		cpu->clocks += 10;
 	}
-
+	else if(op == 0x76) {		/* hlt */
+		cpu->clocks += 7;
+	}
+	else {
+		illegal_ins(op);
+		ret = -1;
+	}
 	return ret;
 }
 
@@ -361,5 +367,10 @@ void	i8080_dump(cpui8080_t p, u8 *mem)
 	printf("%02X ", p->HL.B.l);
 	printf("%04X", p->SP.W);
 	printf("\n");
+}
+
+void	illegal_ins(u8 op)
+{
+	printf("%02X illegal opecode\n", op);
 }
 

@@ -1,0 +1,87 @@
+ AS V1.42 Beta [Bld 32] - source file isZ80.asm - page 1 - 8/27/2013 10:02:09
+
+
+       1/       0 :                     ; I distinguish z80 or 8080
+       2/       0 :                     
+       3/       0 :                     	CPU	Z80
+       4/       0 :                     
+       5/       0 :                     	ORG	0
+       6/       0 :                     
+       7/       0 : 31 00 01            	LD	SP,0100H
+       8/       3 :                     
+       9/       3 : 97                  	SUB	A
+      10/       4 : EA 17 00            	JP	PE,CPU8080
+      11/       7 :                     CPUZ80:
+      12/       7 : CD 2F 00            	CALL	PUTS
+      13/       A : 5A 38 30 20 43 50   	DB	"Z80 CPU\n\r",0
+                    55 0A 0D 00 
+      14/      14 : C3 28 00            	JP	END
+      15/      17 :                     
+      16/      17 :                     CPU8080:
+      17/      17 : CD 2F 00            	CALL	PUTS
+      18/      1A : 38 30 38 30 20 43   	DB	"8080 CPU\n\r",0
+                    50 55 0A 0D 00 
+      19/      25 : C3 28 00            	JP	END
+      20/      28 :                     
+      21/      28 :                     END:
+      22/      28 : 3E 45               	LD	A,'E'
+      23/      2A : D3 FF               	OUT	(0FFH),A
+      24/      2C : DB FF               	IN	A,(0FFH);
+      25/      2E : 76                  	HALT
+      26/      2F :                     
+      27/      2F : E3                  PUTS:	EX	(SP),HL
+      28/      30 :                     PUTS_LOOP
+      29/      30 : 7E                  	LD	A,(HL)
+      30/      31 : 23                  	INC	HL
+      31/      32 : A7                  	AND	A
+      32/      33 : 28 05               	JR	Z,PUTS_FIN
+      33/      35 : D3 FF               	OUT	(0FFH),A
+      34/      37 : C3 30 00            	JP	PUTS_LOOP
+      35/      3A :                     PUTS_FIN
+      36/      3A : E3                  	EX	(SP),HL
+      37/      3B : C9                  	RET
+      38/      3C :                     
+      39/      3C :                     
+ AS V1.42 Beta [Bld 32] - source file isZ80.asm - page 2 - 8/27/2013 10:02:09
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE : i386-unknown-freebsd - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+ CPU8080 :                       17 C | *CPUZ80 :                         7 C |
+*DATE :                   8/27/2013 - |  END :                           28 C |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                        80 - |
+*MOMCPUNAME :                   Z80 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+ PUTS :                          2F C |  PUTS_FIN :                      3A C |
+ PUTS_LOOP :                     30 C | *RELAXED :                        0 - |
+*TIME :                    10:02:09 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     34 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 32] - source file isZ80.asm - page 3 - 8/27/2013 10:02:09
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.02 seconds assembly time
+
+     39 lines source file
+      2 passes
+      0 errors
+      0 warnings

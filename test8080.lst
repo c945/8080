@@ -1,4 +1,4 @@
- AS V1.42 Beta [Bld 32] - source file test8080.asm - page 1 - 2/21/2013 9:53:51
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 1 - 3/7/2013 16:57:01
 
 
        1/       0 :                     # vim:set ts=4:
@@ -61,7 +61,7 @@
       58/      49 : 35                  	dcr	m
       59/      4A : 36 00               	mvi	m,0
       60/      4C : 37                  	stc
- AS V1.42 Beta [Bld 32] - source file test8080.asm - page 2 - 2/21/2013 9:53:51
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 2 - 3/7/2013 16:57:01
 
 
       61/      4D : 00                  	nop		;38 jr c,e
@@ -124,7 +124,7 @@
      118/      89 : 71                  	mov	m,c
      119/      8A : 72                  	mov	m,d
      120/      8B : 73                  	mov	m,e
- AS V1.42 Beta [Bld 32] - source file test8080.asm - page 3 - 2/21/2013 9:53:51
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 3 - 3/7/2013 16:57:01
 
 
      121/      8C : 74                  	mov	m,h
@@ -187,7 +187,7 @@
      178/      C5 : AD                  	xra	l
      179/      C6 : AE                  	xra	m
      180/      C7 : AF                  	xra	a
- AS V1.42 Beta [Bld 32] - source file test8080.asm - page 4 - 2/21/2013 9:53:51
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 4 - 3/7/2013 16:57:01
 
 
      181/      C8 : B0                  	ora	b
@@ -250,7 +250,7 @@
      238/     120 : E9                  	pchl
      239/     121 : EA 00 00            	jpe	0
      240/     124 : EB                  	xchg
- AS V1.42 Beta [Bld 32] - source file test8080.asm - page 5 - 2/21/2013 9:53:51
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 5 - 3/7/2013 16:57:01
 
 
      241/     125 : EC 00 00            	cpe	0
@@ -275,7 +275,7 @@
      260/     145 : FF                  	rst	7
      261/     146 :                     
      262/     146 :                     
- AS V1.42 Beta [Bld 32] - source file test8080.asm - page 6 - 2/21/2013 9:53:51
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 6 - 3/7/2013 16:57:01
 
 
   symbol table (* = unused):
@@ -284,7 +284,7 @@
 *ARCHITECTURE : i386-unknown-freebsd - |
 *BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
 *CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
-*DATE :                   2/21/2013 - | *FALSE :                          0 - |
+*DATE :                    3/7/2013 - | *FALSE :                          0 - |
 *FULLPMMU :                       1 - | *HAS64 :                          1 - |
 *HASDSP :                         0 - | *HASFPU :                         0 - |
 *HASPMMU :                        0 - | *INEXTMODE :                      0 - |
@@ -294,13 +294,13 @@
 *MOMCPU :                      8080 - | *MOMCPUNAME :                  8080 - |
 *NESTMAX :                      100 - | *PACKING :                        0 - |
 *PADDING :                        1 - | *RELAXED :                        0 - |
-*TIME :                     9:53:51 - | *TRUE :                           1 - |
+*TIME :                    16:57:01 - | *TRUE :                           1 - |
 *VERSION :                     142F - |
 
      28 symbols
      28 unused symbols
 
- AS V1.42 Beta [Bld 32] - source file test8080.asm - page 7 - 2/21/2013 9:53:51
+ AS V1.42 Beta [Bld 32] - source file test8080.asm - page 7 - 3/7/2013 16:57:01
 
 
   codepages:
@@ -309,7 +309,7 @@
 STANDARD (0 changed characters)
 
 
-0.00 seconds assembly time
+0.02 seconds assembly time
 
     262 lines source file
       1 pass
