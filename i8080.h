@@ -35,23 +35,5 @@ typedef struct {
 extern	cpui8080_t	i8080_new();
 extern	int	i8080_run(cpui8080_t, u8 *);
 extern	void	i8080_dump(cpui8080_t, u8 *);
-extern	int	mov( cpui8080_t, u8 *, u8);
-extern	int	mvi( cpui8080_t, u8 *, u8);
-extern	int	lxi( cpui8080_t, u8 *, u8);
-extern	int	hlt( cpui8080_t, u8 *, u8);
-extern	int	ldax(cpui8080_t, u8 *, u8);
-extern	int	stax(cpui8080_t, u8 *, u8);
-extern	int	inx( cpui8080_t, u8 *, u8);
-extern	int	dcx( cpui8080_t, u8 *, u8);
-extern	int	dad( cpui8080_t, u8 *, u8);
-extern	u8	*cvtregs(cpui8080_t, int);
-extern	u16	*cvtregp(cpui8080_t, int);
-extern	u16	getword(cpui8080_t, u8 *);
-extern	u8	getbyte(cpui8080_t, u8 *);
-extern	u16	popword(cpui8080_t, u8 *);
-extern	u16	pushword(cpui8080_t, u8 *, u16);
-extern	u8	getmem(u8 *, u16);
-extern	void	setmem(u8 *, u16, u8);
-extern	void	illegal_ins(u8);
 
 #endif

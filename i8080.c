@@ -2,6 +2,26 @@
 #include	<stdlib.h>
 #include	"i8080.h"
 
+// internal funcion
+static int	mov( cpui8080_t, u8 *, u8);
+static int	mvi( cpui8080_t, u8 *, u8);
+static int	lxi( cpui8080_t, u8 *, u8);
+static int	hlt( cpui8080_t, u8 *, u8);
+static int	ldax(cpui8080_t, u8 *, u8);
+static int	stax(cpui8080_t, u8 *, u8);
+static int	inx( cpui8080_t, u8 *, u8);
+static int	dcx( cpui8080_t, u8 *, u8);
+static int	dad( cpui8080_t, u8 *, u8);
+static u8	*cvtregs(cpui8080_t, int);
+static u16	*cvtregp(cpui8080_t, int);
+static u16	getword(cpui8080_t, u8 *);
+static u8	getbyte(cpui8080_t, u8 *);
+static u16	popword(cpui8080_t, u8 *);
+static u16	pushword(cpui8080_t, u8 *, u16);
+static u8	getmem(u8 *, u16);
+static void	setmem(u8 *, u16, u8);
+static void	illegal_ins(u8);
+
 int	i8080_run(cpui8080_t cpu, u8 *mem)
 {
 	u8 	op, sop, wop, wop2;
@@ -110,7 +130,7 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 	return ret;
 }
 
-int	dad(cpui8080_t cpu, u8 *mem, u8 op)
+static int	dad(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u16	*ddd, hl;
 
@@ -126,7 +146,7 @@ int	dad(cpui8080_t cpu, u8 *mem, u8 op)
 	}
 	return 0;
 }
-int	inx(cpui8080_t cpu, u8 *mem, u8 op)
+static int	inx(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -136,7 +156,7 @@ int	inx(cpui8080_t cpu, u8 *mem, u8 op)
 	cpu->clocks += 5;
 	return 0;
 }
-int	dcx(cpui8080_t cpu, u8 *mem, u8 op)
+static int	dcx(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -146,7 +166,7 @@ int	dcx(cpui8080_t cpu, u8 *mem, u8 op)
 	cpu->clocks += 5;
 	return 0;
 }
-int	ldax(cpui8080_t cpu, u8 *mem, u8 op)
+static int	ldax(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -157,7 +177,7 @@ int	ldax(cpui8080_t cpu, u8 *mem, u8 op)
 	return 0;
 	
 }
-int	stax(cpui8080_t cpu, u8 *mem, u8 op)
+static int	stax(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -167,7 +187,7 @@ int	stax(cpui8080_t cpu, u8 *mem, u8 op)
 	cpu->clocks += 7;
 	return 0;
 }
-int	lxi(cpui8080_t cpu, u8 *mem, u8 op)
+static int	lxi(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u16	*ddd, word;
 
@@ -179,7 +199,7 @@ int	lxi(cpui8080_t cpu, u8 *mem, u8 op)
 	return 0;
 }
 
-int	mvi(cpui8080_t cpu, u8 *mem, u8 op)
+static int	mvi(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u8	*ddd, imm;
 
@@ -195,7 +215,7 @@ int	mvi(cpui8080_t cpu, u8 *mem, u8 op)
 	}
 	return 0;
 }
-int	mov(cpui8080_t cpu, u8 *mem, u8 op)
+static int	mov(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	u8	*ddd, *sss;
 
@@ -217,7 +237,7 @@ int	mov(cpui8080_t cpu, u8 *mem, u8 op)
 	}
 	return 0;
 }
-int	hlt(cpui8080_t cpu, u8 *mem, u8 op)
+static int	hlt(cpui8080_t cpu, u8 *mem, u8 op)
 {
 	// cpu->PC.W++;
 	cpu->clocks += 7;
@@ -227,7 +247,7 @@ int	hlt(cpui8080_t cpu, u8 *mem, u8 op)
 /*
  * return register pointer by instruction DDD no.
  */
-u8	*cvtregs(cpui8080_t cpu, int ddd)
+static u8	*cvtregs(cpui8080_t cpu, int ddd)
 {
 	switch(ddd) {
 		case 0:
@@ -254,7 +274,7 @@ u8	*cvtregs(cpui8080_t cpu, int ddd)
 /*
  * return register pointer by instruction DDD no.
  */
-u16	*cvtregp(cpui8080_t cpu, int ddd)
+static u16	*cvtregp(cpui8080_t cpu, int ddd)
 {
 	switch(ddd) {
 		case 0:
@@ -273,7 +293,7 @@ u16	*cvtregp(cpui8080_t cpu, int ddd)
 /*
  * return stack word by sp and sp+1. after sp += 2
  */
-u16	popword(cpui8080_t cpu, u8 *mem)
+static u16	popword(cpui8080_t cpu, u8 *mem)
 {
 	u8	h,l;
 	l = mem[cpu->SP.W++];
@@ -283,7 +303,7 @@ u16	popword(cpui8080_t cpu, u8 *mem)
 /*
  * push stack by sp-1 and sp-2. after sp -= 2
  */
-u16	pushword(cpui8080_t cpu, u8 *mem, u16 word)
+static u16	pushword(cpui8080_t cpu, u8 *mem, u16 word)
 {
 	u8	h,l;
 	h = word >> 8;
@@ -295,7 +315,7 @@ u16	pushword(cpui8080_t cpu, u8 *mem, u16 word)
 /*
  * return immedate word by pc and pc+1. after pc += 2
  */
-u16	getword(cpui8080_t cpu, u8 *mem)
+static u16	getword(cpui8080_t cpu, u8 *mem)
 {
 	u8	h,l;
 	l = mem[cpu->PC.W++];
@@ -305,7 +325,7 @@ u16	getword(cpui8080_t cpu, u8 *mem)
 /*
  * return immedate byte by pc. after pc += 1
  */
-u8	getbyte(cpui8080_t cpu, u8 *mem)
+static u8	getbyte(cpui8080_t cpu, u8 *mem)
 {
 	u8	l;
 	l = mem[cpu->PC.W++];
@@ -315,7 +335,7 @@ u8	getbyte(cpui8080_t cpu, u8 *mem)
 /*
  * get memory byte
  */
-u8	getmem(u8 *mem, u16 offset)
+static u8	getmem(u8 *mem, u16 offset)
 {
 	printf("%04X:%02X\n", offset, mem[offset]);
 	return mem[offset];
@@ -367,7 +387,7 @@ void	i8080_dump(cpui8080_t p, u8 *mem)
 	printf("\n");
 }
 
-void	illegal_ins(u8 op)
+static void	illegal_ins(u8 op)
 {
 	printf("%02X illegal opecode\n", op);
 }
