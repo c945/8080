@@ -11,15 +11,12 @@
 	adi	80h;		;A=03 S=0 Z=0 P=1 C=1
 	mvi	b,11h;		;B=11 S=0 Z=0 P=1 C=1
 	adc	b		;A=14 S=0 Z=0 P=1 C=0
-	hlt
-
-	lxi	h,1000h
-	mvi	a,0		;A=0
+	lxi	h,1000h	
 	mvi	m,44h		;(HL:1000H)=44H
-	add	m		;A=44H
-	mvi	b,12h		;B=12H
-	add	b		;A=56H
-	adi	4		;A=5AH
+	add	m		;A=58 S=0 Z=0 P=0 C=0
+	mvi	b,12h		;B=12
+	add	b		;A=6A S=0 Z=0 P=1 C=0
+	adi	4		;A=6E S=0 Z=0 P=0 C=0
 
 	lxi	sp,0ffffh
 	dcx	sp		;SP=fffe
