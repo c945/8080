@@ -2,10 +2,26 @@
 
 	org	0
 
+	mvi	a,0		;
+	adi	0		;A=0  Z=1 S=0 P=1 CY=0
+	adi	1		;A=1  Z=0 S=0 P=0 CY=0
+	adi	1		;A=2  Z=0 S=0 P=0 CY=0
+	adi	1		;A=3  Z=0 S=0 P=1 CY=0
+	adi	80h;		;A=83 Z=0 S=1 P=0 CY=0
+	adi	80h;		;A=03 Z=0 S=0 P=1 CY=1
+	hlt
+
+	lxi	h,1000h
+	mvi	a,0		;A=0
+	mvi	m,44h		;(HL:1000H)=44H
+	add	m		;A=44H
+	mvi	b,12h		;B=12H
+	add	b		;A=56H
+	adi	4		;A=5AH
+
 	lxi	sp,0ffffh
 	dcx	sp		;SP=fffe
 	call	test1
-	hlt
 
 test1:
 	lxi	b,1234h		;BC=1234

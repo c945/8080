@@ -12,6 +12,8 @@ static int	stax(cpui8080_t, u8 *, u8);
 static int	inx( cpui8080_t, u8 *, u8);
 static int	dcx( cpui8080_t, u8 *, u8);
 static int	dad( cpui8080_t, u8 *, u8);
+static int	add( cpui8080_t, u8 *, u8, int);
+static int	adi( cpui8080_t, u8 *, u8, int);
 static u8	*cvtregs(cpui8080_t, int);
 static u16	*cvtregp(cpui8080_t, int);
 static u16	getword(cpui8080_t, u8 *);
@@ -21,6 +23,8 @@ static u16	pushword(cpui8080_t, u8 *, u16);
 static u8	getmem(u8 *, u16);
 static void	setmem(u8 *, u16, u8);
 static void	illegal_ins(u8);
+static void	setflags(cpui8080_t, u16);
+static u16	u16_parity(u16);
 
 int	i8080_run(cpui8080_t cpu, u8 *mem)
 {
@@ -123,11 +127,67 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 		cpu->PC.W = word;
 		cpu->clocks += 10;
 	}
+	else if((op & 0xf8) == 0x80 ) {	/* ADD r */
+		ret = add(cpu, mem, op, 0);
+	}
+	else if((op & 0xf8) == 0x88 ) {	/* ADC r */
+		ret = add(cpu, mem, op, 1);
+	}
+	else if(op == 0xc6) {		/* ADI byte */
+		ret = adi(cpu, mem, op, 0);
+	}
+	else if(op == 0xce) {		/* ACI byte */
+		ret = adi(cpu, mem, op, 1);
+	}
 	else {
 		illegal_ins(op);
 		ret = -1;
 	}
 	return ret;
+}
+
+static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int f)
+{
+	u8	imm, CY;
+	u16	ans;
+
+	if(cpu->AF.B.l & i8080F_CY) {
+		CY = 1;
+	} else {
+		CY = 0;
+	}
+	cpu->PC.W++;
+	imm = getbyte(cpu, mem);
+	ans = cpu->AF.B.h + imm + CY;
+	cpu->AF.B.h = ans;
+	setflags(cpu, ans);
+	cpu->clocks += 7;
+	return 0;
+}
+static int	add(cpui8080_t cpu, u8 *mem, u8 op, int f)
+{
+	u8	*sss, CY;
+	u16	ans;
+
+	sss = cvtregs(cpu, (op & 0x07));
+	if(cpu->AF.B.l & i8080F_CY) {
+		CY = 1;
+	} else {
+		CY = 0;
+	}
+	if(sss == NULL) {	/* ADD(C) M */
+		ans = cpu->AF.B.h + getmem(mem, cpu->HL.W);
+		cpu->AF.B.h = ans;
+		cpu->clocks += 7;
+	} else {
+		ans = cpu->AF.B.h + *sss;
+		cpu->AF.B.h = ans;
+		cpu->clocks += 4;
+	}
+	setflags(cpu, ans);
+	cpu->PC.W++;
+	cpu->clocks += 5;
+	return 0;
 }
 
 static int	dad(cpui8080_t cpu, u8 *mem, u8 op)
@@ -392,3 +452,39 @@ static void	illegal_ins(u8 op)
 	printf("%02X illegal opecode\n", op);
 }
 
+static void	setflags(cpui8080_t cpu, u16 ans)
+{
+	if(ans > (u16)0x00ff) {
+		cpu->AF.B.l |= i8080F_CY;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_CY);
+	}
+	if(ans == 0) {
+		cpu->AF.B.l |= i8080F_Z;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_Z);
+	}
+	if(ans & (u16)0x0080) {
+		cpu->AF.B.l |= i8080F_S;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_S);
+	}
+	if(u16_parity(cpu->AF.B.h)) {
+		cpu->AF.B.l &= (~ i8080F_P);
+	} else {
+		cpu->AF.B.l |= i8080F_P;
+	}
+}
+
+/*
+ * odd parity check, true if odd.
+ */
+static u16	u16_parity(u16 x)
+{
+  x = x ^ (x >> 8);
+  x = x ^ (x >> 4);
+  x = x ^ (x >> 2);
+  x = x ^ (x >> 1);
+
+  return x & 1;
+}
