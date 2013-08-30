@@ -1,6 +1,6 @@
 CFLAGS=-g -O2 -Wall
 all:test8080.hex t_85.hex ex1.hex 8080test isZ80.hex \
-	t_inr.hex
+	t_inr.hex t_dcr.hex
 
 clean:
 	rm *.o *.hex
@@ -18,7 +18,7 @@ i8080.o:	i8080.h
 .SUFFIXES: .hex .p .asm .c .o
 
 .asm.p:
-	asl -L $<
+	asl -qL $<
 
 .p.hex:
 	p2hex $<

@@ -9,6 +9,7 @@ static int	lxi( cpui8080_t, u8 *, u8);
 static int	hlt( cpui8080_t, u8 *, u8);
 static int	ldax(cpui8080_t, u8 *, u8);
 static int	stax(cpui8080_t, u8 *, u8);
+static int	dcr( cpui8080_t, u8 *, u8);
 static int	inx( cpui8080_t, u8 *, u8);
 static int	dcx( cpui8080_t, u8 *, u8);
 static int	dad( cpui8080_t, u8 *, u8);
@@ -29,6 +30,7 @@ static void	illegal_ins(u8);
 static void	setflags_add(cpui8080_t, u16, u8);
 static void	setflags_sub(cpui8080_t, u16, u8);
 static void	setflags_inr(cpui8080_t, u8);
+static void	setflags_dcr(cpui8080_t, u8);
 static u16	u16_parity(u16);
 
 int	i8080_run(cpui8080_t cpu, u8 *mem)
@@ -156,14 +158,35 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 	else if(op == 0xde) {		/* SBI byte */
 		ret = sbi(cpu, mem, op, 1);
 	}
-	else if((op & 0xc7) == 0x4 ) {	/* INR r */
+	else if((op & 0xc7) == 0x4 ) {	/* INR r(M) */
 		ret = inr(cpu, mem, op);
+	}
+	else if((op & 0xc7) == 0x5 ) {	/* DCR r(M) */
+		ret = dcr(cpu, mem, op);
 	}
 	else {
 		illegal_ins(op);
 		ret = -1;
 	}
 	return ret;
+}
+
+static int	dcr(cpui8080_t cpu, u8 *mem, u8 op)
+{
+	u8	*sss, ans;
+
+	sss = cvtregs(cpu, ((op >>3) & 0x07));
+	if(sss == NULL) {	/* DCR r(M) */
+		ans = getmem(mem, cpu->HL.W) - 1;
+		setmem(mem, cpu->HL.W, ans);
+		cpu->clocks += 10;
+	} else {
+		ans = --*sss;
+		cpu->clocks += 5;
+	}
+	setflags_dcr(cpu, ans);
+	cpu->PC.W++;
+	return 0;
 }
 
 static int	inr(cpui8080_t cpu, u8 *mem, u8 op)
@@ -599,6 +622,15 @@ static void	setflags_inr(cpui8080_t cpu, u8 ans)
 		cpu->AF.B.l |= i8080F_P;
 	}
 	if((ans & 0x0f) == 0) {
+		cpu->AF.B.l |= i8080F_AC;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_AC);
+	}
+}
+static void	setflags_dcr(cpui8080_t cpu, u8 ans)
+{
+	setflags_inr(cpu, ans);
+	if((ans & 0x0f) == 0xf) {
 		cpu->AF.B.l |= i8080F_AC;
 	} else {
 		cpu->AF.B.l &= (~ i8080F_AC);
