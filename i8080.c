@@ -417,6 +417,7 @@ cpui8080_t	i8080_new()
 	p->SP.W = p->PC.W = 0;
 	p->clocks = 0;
 	p->int_f  = 0;
+	p->AF.B.l = i8080F_B1;
 	return p;
 }
 
@@ -424,17 +425,21 @@ void	i8080_dump(cpui8080_t p, u8 *mem)
 {
 	u8	op;
 	if(p == NULL) {
-		printf("     -PC- OP FLAG -AF- -BC- -DE- -HL- -SP-\n");
+		printf("     -PC- OP --FLAG-- -AF- -BC- -DE- -HL- -SP-\n");
 		return;
 	}
 	op = mem[p->PC.W];
 	printf("%4ld ", p->clocks);
 	printf("%04X ", p->PC.W);
 	printf("%02X ", op);
-	printf("%c", (p->AF.B.l & i8080F_CY ? 'C' : 'c'));
 	printf("%c", (p->AF.B.l & i8080F_S  ? 'S' : 's'));
+	printf("%c", (p->AF.B.l & i8080F_Z  ? 'Z' : 'z'));
+	printf("%c", (p->AF.B.l & i8080F_B5 ? '+' : '-')); /* not use */
+	printf("%c", (p->AF.B.l & i8080F_AC ? 'A' : 'a'));
+	printf("%c", (p->AF.B.l & i8080F_B3 ? '+' : '-')); /* not use */
 	printf("%c", (p->AF.B.l & i8080F_P  ? 'P' : 'p'));
-	printf("%c ", (p->AF.B.l & i8080F_Z  ? 'Z' : 'z'));
+	printf("%c", (p->AF.B.l & i8080F_B1 ? '+' : '-')); /* not use */
+	printf("%c ",(p->AF.B.l & i8080F_CY ? 'C' : 'c'));
 	printf("%02X", p->AF.B.h);
 	printf("%02X ", p->AF.B.l);
 	printf("%02X", p->BC.B.h);

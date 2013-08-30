@@ -1,4 +1,4 @@
- AS V1.42 Beta [Bld 32] - source file ex1.asm - page 1 - 8/30/2013 11:36:47
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 1 - 8/30/2013 12:54:23
 
 
        1/       0 :                     	cpu	8080
@@ -6,14 +6,14 @@
        3/       0 :                     	org	0
        4/       0 :                     
        5/       0 : 3E 00               	mvi	a,0		;
-       6/       2 : C6 00               	adi	0		;A=0  C=0 S=0 P=1 Z=1
-       7/       4 : C6 01               	adi	1		;A=1  C=0 S=0 P=0 Z=0
-       8/       6 : C6 01               	adi	1		;A=2  C=0 S=0 P=0 Z=0
-       9/       8 : C6 01               	adi	1		;A=3  C=0 S=0 P=1 Z=0
-      10/       A : C6 80               	adi	80h;		;A=83 C=0 S=1 P=0 Z=0
-      11/       C : C6 80               	adi	80h;		;A=03 C=1 S=0 P=1 Z=0
-      12/       E : 06 11               	mvi	b,11h;		;B=11
-      13/      10 : 88                  	adc	b		;A=14 C=0 S=0 P=1 Z=0
+       6/       2 : C6 00               	adi	0		;A=0  S=0 Z=1 P=1 C=0
+       7/       4 : C6 01               	adi	1		;A=1  S=0 Z=0 P=0 C=0
+       8/       6 : C6 01               	adi	1		;A=2  S=0 Z=0 P=0 C=0
+       9/       8 : C6 01               	adi	1		;A=3  S=0 Z=0 P=1 Z=0
+      10/       A : C6 80               	adi	80h;		;A=83 S=1 Z=0 P=0 C=0
+      11/       C : C6 80               	adi	80h;		;A=03 S=0 Z=0 P=1 C=1
+      12/       E : 06 11               	mvi	b,11h;		;B=11 S=0 Z=0 P=1 C=1
+      13/      10 : 88                  	adc	b		;A=14 S=0 Z=0 P=1 C=0
       14/      11 : 76                  	hlt
       15/      12 :                     
       16/      12 : 21 00 10            	lxi	h,1000h
@@ -61,13 +61,13 @@
       58/      4B : C9                  	ret
       59/      4C :                     
       60/    1234 :                     	org	1234h
- AS V1.42 Beta [Bld 32] - source file ex1.asm - page 2 - 8/30/2013 11:36:47
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 2 - 8/30/2013 12:54:23
 
 
       61/    1234 : 55                  	db	55h
       62/    1235 :                     
       63/    1235 :                     
- AS V1.42 Beta [Bld 32] - source file ex1.asm - page 3 - 8/30/2013 11:36:47
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 3 - 8/30/2013 12:54:23
 
 
   symbol table (* = unused):
@@ -87,13 +87,13 @@
 *MOMCPUNAME :                  8080 - | *NESTMAX :                      100 - |
 *PACKING :                        0 - | *PADDING :                        1 - |
 *RELAXED :                        0 - |  TEST1 :                         26 C |
-*TIME :                    11:36:47 - | *TRUE :                           1 - |
+*TIME :                    12:54:23 - | *TRUE :                           1 - |
 *VERSION :                     142F - |
 
      30 symbols
      28 unused symbols
 
- AS V1.42 Beta [Bld 32] - source file ex1.asm - page 4 - 8/30/2013 11:36:47
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 4 - 8/30/2013 12:54:23
 
 
   codepages:
@@ -102,7 +102,7 @@
 STANDARD (0 changed characters)
 
 
-0.01 seconds assembly time
+0.03 seconds assembly time
 
      63 lines source file
       2 passes

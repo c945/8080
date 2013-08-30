@@ -24,8 +24,11 @@ typedef struct {
  *	Cmp. :	cpui8080.f ^= i8080F_P;
  */
 #define	i8080F_CY	0x01	/* Carry	*/
+#define	i8080F_B1	0x02	/* not use 1	*/
 #define	i8080F_P	0x04	/* Parity	*/
+#define	i8080F_B3	0x08	/* not use 0	*/
 #define	i8080F_AC	0x10	/* Aux Carry	*/
+#define	i8080F_B5	0x20	/* not use 0	*/
 #define	i8080F_Z	0x40	/* Zero		*/
 #define	i8080F_S	0x80	/* Sign		*/
 
