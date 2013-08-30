@@ -23,7 +23,7 @@ static u16	pushword(cpui8080_t, u8 *, u16);
 static u8	getmem(u8 *, u16);
 static void	setmem(u8 *, u16, u8);
 static void	illegal_ins(u8);
-static void	setflags(cpui8080_t, u16);
+static void	setflags(cpui8080_t, u16, u8);
 static u16	u16_parity(u16);
 
 int	i8080_run(cpui8080_t cpu, u8 *mem)
@@ -148,7 +148,7 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 
 static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int f)
 {
-	u8	imm, CY;
+	u8	imm, CY, old;
 	u16	ans;
 
 	if(cpu->AF.B.l & i8080F_CY) {
@@ -159,14 +159,15 @@ static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int f)
 	cpu->PC.W++;
 	imm = getbyte(cpu, mem);
 	ans = cpu->AF.B.h + imm + CY;
+	old = cpu->AF.B.h;	/* save old ACC */
 	cpu->AF.B.h = ans;
-	setflags(cpu, ans);
+	setflags(cpu, ans, old);
 	cpu->clocks += 7;
 	return 0;
 }
 static int	add(cpui8080_t cpu, u8 *mem, u8 op, int f)
 {
-	u8	*sss, CY;
+	u8	*sss, CY, old;
 	u16	ans;
 
 	sss = cvtregs(cpu, (op & 0x07));
@@ -177,14 +178,16 @@ static int	add(cpui8080_t cpu, u8 *mem, u8 op, int f)
 	}
 	if(sss == NULL) {	/* ADD(C) M */
 		ans = cpu->AF.B.h + getmem(mem, cpu->HL.W);
+		old = cpu->AF.B.h;	/* save old ACC */
 		cpu->AF.B.h = ans;
 		cpu->clocks += 7;
 	} else {
 		ans = cpu->AF.B.h + *sss;
+		old = cpu->AF.B.h;	/* save old ACC */
 		cpu->AF.B.h = ans;
 		cpu->clocks += 4;
 	}
-	setflags(cpu, ans);
+	setflags(cpu, ans, old);
 	cpu->PC.W++;
 	cpu->clocks += 5;
 	return 0;
@@ -457,7 +460,7 @@ static void	illegal_ins(u8 op)
 	printf("%02X illegal opecode\n", op);
 }
 
-static void	setflags(cpui8080_t cpu, u16 ans)
+static void	setflags(cpui8080_t cpu, u16 ans, u8 old)
 {
 	if(ans > (u16)0x00ff) {
 		cpu->AF.B.l |= i8080F_CY;
@@ -478,6 +481,11 @@ static void	setflags(cpui8080_t cpu, u16 ans)
 		cpu->AF.B.l &= (~ i8080F_P);
 	} else {
 		cpu->AF.B.l |= i8080F_P;
+	}
+	if((ans & 0x000f) < (old & 0x0f)) {
+		cpu->AF.B.l |= i8080F_AC;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_AC);
 	}
 }
 

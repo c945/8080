@@ -12,11 +12,11 @@
 	mvi	b,11h;		;B=11 S=0 Z=0 P=1 C=1
 	adc	b		;A=14 S=0 Z=0 P=1 C=0
 	lxi	h,1000h	
-	mvi	m,44h		;(HL:1000H)=44H
-	add	m		;A=58 S=0 Z=0 P=0 C=0
-	mvi	b,12h		;B=12
-	add	b		;A=6A S=0 Z=0 P=1 C=0
-	adi	4		;A=6E S=0 Z=0 P=0 C=0
+	mvi	m,46h		;(HL:1000H)=46H
+	add	m		;A=5A S=0 Z=0 P=0 C=0
+	mvi	b,17h		;B=17
+	add	b		;A=81 S=0 Z=0 P=1 C=0
+	adi	4		;A=85 S=0 Z=0 P=0 C=0
 
 	lxi	sp,0ffffh
 	dcx	sp		;SP=fffe
