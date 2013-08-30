@@ -1,5 +1,6 @@
 CFLAGS=-g -O2 -Wall
-all:test8080.hex t_85.hex ex1.hex 8080test isZ80.hex
+all:test8080.hex t_85.hex ex1.hex 8080test isZ80.hex \
+	t_inr.hex
 
 clean:
 	rm *.o *.hex

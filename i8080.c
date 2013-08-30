@@ -14,6 +14,9 @@ static int	dcx( cpui8080_t, u8 *, u8);
 static int	dad( cpui8080_t, u8 *, u8);
 static int	add( cpui8080_t, u8 *, u8, int);
 static int	adi( cpui8080_t, u8 *, u8, int);
+static int	sub( cpui8080_t, u8 *, u8, int);
+static int	sbi( cpui8080_t, u8 *, u8, int);
+static int	inr( cpui8080_t, u8 *, u8);
 static u8	*cvtregs(cpui8080_t, int);
 static u16	*cvtregp(cpui8080_t, int);
 static u16	getword(cpui8080_t, u8 *);
@@ -23,7 +26,9 @@ static u16	pushword(cpui8080_t, u8 *, u16);
 static u8	getmem(u8 *, u16);
 static void	setmem(u8 *, u16, u8);
 static void	illegal_ins(u8);
-static void	setflags(cpui8080_t, u16, u8);
+static void	setflags_add(cpui8080_t, u16, u8);
+static void	setflags_sub(cpui8080_t, u16, u8);
+static void	setflags_inr(cpui8080_t, u8);
 static u16	u16_parity(u16);
 
 int	i8080_run(cpui8080_t cpu, u8 *mem)
@@ -139,6 +144,21 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 	else if(op == 0xce) {		/* ACI byte */
 		ret = adi(cpu, mem, op, 1);
 	}
+	else if((op & 0xf8) == 0x90 ) {	/* SUB r */
+		ret = sub(cpu, mem, op, 0);
+	}
+	else if((op & 0xf8) == 0x98 ) {	/* SBB r */
+		ret = sub(cpu, mem, op, 1);
+	}
+	else if(op == 0xd6) {		/* SUI byte */
+		ret = sbi(cpu, mem, op, 0);
+	}
+	else if(op == 0xde) {		/* SBI byte */
+		ret = sbi(cpu, mem, op, 1);
+	}
+	else if((op & 0xc7) == 0x4 ) {	/* INR r */
+		ret = inr(cpu, mem, op);
+	}
 	else {
 		illegal_ins(op);
 		ret = -1;
@@ -146,12 +166,76 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 	return ret;
 }
 
-static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int f)
+static int	inr(cpui8080_t cpu, u8 *mem, u8 op)
 {
-	u8	imm, CY, old;
+	u8	*sss, ans;
+
+	sss = cvtregs(cpu, ((op >>3) & 0x07));
+	if(sss == NULL) {	/* INR r(M) */
+		ans = getmem(mem, cpu->HL.W) + 1;
+		setmem(mem, cpu->HL.W, ans);
+		cpu->clocks += 10;
+	} else {
+		ans = ++*sss;
+		cpu->clocks += 5;
+	}
+	setflags_inr(cpu, ans);
+	cpu->PC.W++;
+	return 0;
+}
+
+static int	sbi(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
+{
+	u8	imm, CY=0, old;
 	u16	ans;
 
-	if(cpu->AF.B.l & i8080F_CY) {
+	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
+		CY = 1;
+	} else {
+		CY = 0;
+	}
+	cpu->PC.W++;
+	imm = getbyte(cpu, mem);
+	ans = cpu->AF.B.h - imm - CY;
+	old = cpu->AF.B.h;	/* save old ACC */
+	cpu->AF.B.h = ans;
+	setflags_add(cpu, ans, old);
+	cpu->clocks += 7;
+	return 0;
+}
+static int	sub(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
+{
+	u8	*sss, CY=0, old;
+	u16	ans;
+
+	sss = cvtregs(cpu, (op & 0x07));
+	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
+		CY = 1;
+	} else {
+		CY = 0;
+	}
+	if(sss == NULL) {	/* ADD(C) M */
+		ans = cpu->AF.B.h - getmem(mem, cpu->HL.W) - CY;
+		old = cpu->AF.B.h;	/* save old ACC */
+		cpu->AF.B.h = ans;
+		cpu->clocks += 7;
+	} else {
+		ans = cpu->AF.B.h - *sss - CY;
+		old = cpu->AF.B.h;	/* save old ACC */
+		cpu->AF.B.h = ans;
+		cpu->clocks += 4;
+	}
+	setflags_sub(cpu, ans, old);
+	cpu->PC.W++;
+	return 0;
+}
+
+static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
+{
+	u8	imm, CY=0, old;
+	u16	ans;
+
+	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
 		CY = 1;
 	} else {
 		CY = 0;
@@ -161,17 +245,17 @@ static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int f)
 	ans = cpu->AF.B.h + imm + CY;
 	old = cpu->AF.B.h;	/* save old ACC */
 	cpu->AF.B.h = ans;
-	setflags(cpu, ans, old);
+	setflags_sub(cpu, ans, old);
 	cpu->clocks += 7;
 	return 0;
 }
-static int	add(cpui8080_t cpu, u8 *mem, u8 op, int f)
+static int	add(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
 {
-	u8	*sss, CY, old;
+	u8	*sss, CY=0, old;
 	u16	ans;
 
 	sss = cvtregs(cpu, (op & 0x07));
-	if(cpu->AF.B.l & i8080F_CY) {
+	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
 		CY = 1;
 	} else {
 		CY = 0;
@@ -187,7 +271,7 @@ static int	add(cpui8080_t cpu, u8 *mem, u8 op, int f)
 		cpu->AF.B.h = ans;
 		cpu->clocks += 4;
 	}
-	setflags(cpu, ans, old);
+	setflags_add(cpu, ans, old);
 	cpu->PC.W++;
 	cpu->clocks += 5;
 	return 0;
@@ -460,7 +544,7 @@ static void	illegal_ins(u8 op)
 	printf("%02X illegal opecode\n", op);
 }
 
-static void	setflags(cpui8080_t cpu, u16 ans, u8 old)
+static void	setflags_add(cpui8080_t cpu, u16 ans, u8 old)
 {
 	if(ans > (u16)0x00ff) {
 		cpu->AF.B.l |= i8080F_CY;
@@ -483,6 +567,38 @@ static void	setflags(cpui8080_t cpu, u16 ans, u8 old)
 		cpu->AF.B.l |= i8080F_P;
 	}
 	if((ans & 0x000f) < (old & 0x0f)) {
+		cpu->AF.B.l |= i8080F_AC;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_AC);
+	}
+}
+static void	setflags_sub(cpui8080_t cpu, u16 ans, u8 old)
+{
+	setflags_add(cpu, ans, old);
+	if((ans & 0x000f) > (old & 0x0f)) {
+		cpu->AF.B.l |= i8080F_AC;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_AC);
+	}
+}
+static void	setflags_inr(cpui8080_t cpu, u8 ans)
+{
+	if(ans == 0) {
+		cpu->AF.B.l |= i8080F_Z;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_Z);
+	}
+	if(ans & (u16)0x0080) {
+		cpu->AF.B.l |= i8080F_S;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_S);
+	}
+	if(u16_parity(ans)) {
+		cpu->AF.B.l &= (~ i8080F_P);
+	} else {
+		cpu->AF.B.l |= i8080F_P;
+	}
+	if((ans & 0x0f) == 0) {
 		cpu->AF.B.l |= i8080F_AC;
 	} else {
 		cpu->AF.B.l &= (~ i8080F_AC);
