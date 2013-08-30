@@ -3,12 +3,14 @@
 	org	0
 
 	mvi	a,0		;
-	adi	0		;A=0  Z=1 S=0 P=1 CY=0
-	adi	1		;A=1  Z=0 S=0 P=0 CY=0
-	adi	1		;A=2  Z=0 S=0 P=0 CY=0
-	adi	1		;A=3  Z=0 S=0 P=1 CY=0
-	adi	80h;		;A=83 Z=0 S=1 P=0 CY=0
-	adi	80h;		;A=03 Z=0 S=0 P=1 CY=1
+	adi	0		;A=0  C=0 S=0 P=1 Z=1
+	adi	1		;A=1  C=0 S=0 P=0 Z=0
+	adi	1		;A=2  C=0 S=0 P=0 Z=0
+	adi	1		;A=3  C=0 S=0 P=1 Z=0
+	adi	80h;		;A=83 C=0 S=1 P=0 Z=0
+	adi	80h;		;A=03 C=1 S=0 P=1 Z=0
+	mvi	b,11h;		;B=11
+	adc	b		;A=14 C=0 S=0 P=1 Z=0
 	hlt
 
 	lxi	h,1000h
