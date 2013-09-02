@@ -107,6 +107,11 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	else if(wop == 0x09) {	/* dad rp */
 		ret = dad(cpu, mem, op);
 	}
+	else if(op == 0x2f) {		/* CMA */
+		cpu->AF.B.h =  ~cpu->AF.B.h;
+		cpu->PC.W++;
+		cpu->clocks += 4;
+	}
 	else if(op == 0x3f) {		/* CMC */
 		cpu->AF.B.l ^= i8080F_CY;
 		cpu->PC.W++;
