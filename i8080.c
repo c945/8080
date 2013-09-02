@@ -46,90 +46,90 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	sop = (op & 0xc7);	/* OPCODE for Reg A/B/C/D/E/H/L/M	 */
 	wop = (op & 0xcf);	/* OPCODE for Reg Pair BC/DE/HL/SP	 */
 	wop2 = (op & 0xef);	/* OPCODE for Reg Pair BC/DE		 */
-	if(op == 0) {			/* nop */
+	if(op == 0) {			/* NOP */
 		cpu->clocks += 4;
 		cpu->PC.W++;
 	}
-	else if((op & 0xc0) == 0x40) {	/* mov r,r / mov m,r / mov r,m / hlt */
+	else if((op & 0xc0) == 0x40) {	/* MOV r,r / MOV M,r / MOV r,M / HLT */
 		ret = mov(cpu, mem, op);
 	}
-	else if(sop == 0x06) {	/* mvi r,data / mov m,data */
+	else if(sop == 0x06) {	/* MVI r,data / MOV M,data */
 		ret = mvi(cpu, mem, op);
 	}
-	else if(wop == 0x01) { 	/* lxi rp, data data */
+	else if(wop == 0x01) { 	/* LXI rp, data data */
 		ret = lxi(cpu, mem, op);
 	}
-	else if(op == 0x3a) {		/* lda addr addr */
+	else if(op == 0x3a) {		/* LDA addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		cpu->AF.B.h = getmem(mem,word);
 		cpu->clocks += 13;
 	}
-	else if(op == 0x2a) {		/* lhld addr addr */
+	else if(op == 0x2a) {		/* LHLD addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		cpu->HL.B.l = getmem(mem, word);
 		cpu->HL.B.h = getmem(mem, word+1);
 		cpu->clocks += 16;
 	}
-	else if(op == 0x32) {		/* sta addr addr */
+	else if(op == 0x32) {		/* STA addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		setmem(mem, word, cpu->AF.B.h);
 		cpu->clocks += 13;
 	}
-	else if(op == 0x22) {		/* shld addr addr */
+	else if(op == 0x22) {		/* SHLD addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		setmem(mem, word, cpu->HL.B.l);
 		setmem(mem, word+1, cpu->HL.B.h);
 		cpu->clocks += 16;
 	}
-	else if(wop2 == 0x0a) { 	/* ldax rp */
+	else if(wop2 == 0x0a) { 	/* LDAX rp */
 		ret = ldax(cpu, mem, op);
 	}
-	else if(wop2 == 0x02) { 	/* stax rp */
+	else if(wop2 == 0x02) { 	/* STAX rp */
 		ret = stax(cpu, mem, op);
 	}
-	else if(op == 0xeb) {		/* xchg */
+	else if(op == 0xeb) {		/* XCHG */
 		word = cpu->HL.W;
 		cpu->HL.W = cpu->DE.W;
 		cpu->DE.W = word;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
-	else if(wop == 0x03) {	/* inx rp */
+	else if(wop == 0x03) {	/* INX rp */
 		ret = inx(cpu, mem, op);
 	}
-	else if(wop == 0x0b) {	/* dcx rp */
+	else if(wop == 0x0b) {	/* DCX rp */
 		ret = dcx(cpu, mem, op);
 	}
 	else if(wop == 0x09) {	/* dad rp */
 		ret = dad(cpu, mem, op);
 	}
-	else if(op == 0x3f) {		/* cmc */
+	else if(op == 0x3f) {		/* CMC */
 		cpu->AF.B.l ^= i8080F_CY;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
-	else if(op == 0x37) {		/* stc */
+	else if(op == 0x37) {		/* STC */
 		cpu->AF.B.l |= i8080F_CY;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
-	else if(op == 0xc3) {		/* jmp */
+	else if(op == 0xc3) {		/* JMP adr,adr */
 		cpu->PC.W++;
 		cpu->PC.W = getword(cpu, mem);
 		cpu->clocks += 10;
 	}
-	else if(op == 0xcd) {		/* call */
+	else if(op == 0xcd) {		/* CALL adr,adr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
 		pushword(cpu, mem, cpu->PC.W);
 		cpu->PC.W = word;
 		cpu->clocks += 17;
 	}
-	else if(op == 0xc9) {		/* ret */
+	else if(op == 0xc9) {		/* RET */
 		cpu->PC.W++;
 		word = popword(cpu, mem);
 		cpu->PC.W = word;
