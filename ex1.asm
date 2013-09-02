@@ -21,6 +21,7 @@
 	lxi	sp,0ffffh
 	dcx	sp		;SP=fffe
 	call	test1
+	hlt
 
 test1:
 	lxi	b,1234h		;BC=1234

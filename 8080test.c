@@ -17,7 +17,7 @@ int	main(int argc, char **argv, char **env)
 		return 1;
 	}
 	i8080_dump(NULL, NULL);
-	for(i=0; i<32; i++) {
+	for(i=0; i<64; i++) {
 		i8080_dump(cpu, mem);
 		if(i8080_run(cpu, mem)) break;
 	}
