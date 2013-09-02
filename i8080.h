@@ -15,13 +15,13 @@ typedef struct {
 	pair	AF,BC,DE,HL,SP,PC;
 	long	clocks;
 	int	int_f;
-} cpui8080;
+} i8080;
 
 /*
  * Flag Bit Pattern
- *	Set  :	cpui8080.f |= i8080F_CY;
- *	Reset:  cpui8080.f &= ~i8080F_Z;
- *	Cmp. :	cpui8080.f ^= i8080F_P;
+ *	Set  :	i8080.f |= i8080F_CY;
+ *	Reset:  i8080.f &= ~i8080F_Z;
+ *	Cmp. :	i8080.f ^= i8080F_P;
  */
 #define	i8080F_CY	0x01	/* Carry	*/
 #define	i8080F_B1	0x02	/* not use 1	*/
@@ -35,8 +35,8 @@ typedef struct {
 #define	i8080_HLT	1	/* hlt instruction	*/
 #define	i8080_ILG	-2	/* illegal opcode	*/
 
-extern	cpui8080	*i8080_new();
-extern	int	i8080_run(cpui8080 *, u8 *);
-extern	void	i8080_dump(cpui8080 *, u8 *);
+extern	i8080	*i8080_new();
+extern	int	i8080_run(i8080 *, u8 *);
+extern	void	i8080_dump(i8080 *, u8 *);
 
 #endif

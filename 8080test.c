@@ -10,7 +10,7 @@ int	gethexfile(char *);
 int	main(int argc, char **argv, char **env)
 {
 	int	i,hlt;
-	cpui8080	*cpu;
+	i8080	*cpu;
 
 	cpu = i8080_new();
 	if((i=gethexfile(argv[1]))) {
