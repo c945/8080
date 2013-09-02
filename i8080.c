@@ -19,7 +19,7 @@ static int	sub( i8080 *, u8 *, u8, int);
 static int	sbi( i8080 *, u8 *, u8, int);
 static int	inr( i8080 *, u8 *, u8);
 static u8	*cvtregs(i8080 *, int);
-static u16	*cvtregp(i8080 *, int);
+static u16	*cvtregp_sp(i8080 *, int);
 static u16	getword(i8080 *, u8 *);
 static u8	getbyte(i8080 *, u8 *);
 static u16	popword(i8080 *, u8 *);
@@ -304,7 +304,7 @@ static int	dad(i8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd, hl;
 
-	ddd = cvtregp(cpu, (op & 0x30) >> 4);
+	ddd = cvtregp_sp(cpu, (op & 0x30) >> 4);
 	hl = cpu->HL.W;
 	cpu->HL.W += *ddd;
 	cpu->PC.W++;
@@ -320,7 +320,7 @@ static int	inx(i8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
-	ddd = cvtregp(cpu, (op & 0x30) >> 4);
+	ddd = cvtregp_sp(cpu, (op & 0x30) >> 4);
 	(*ddd)++;
 	cpu->PC.W++;
 	cpu->clocks += 5;
@@ -330,7 +330,7 @@ static int	dcx(i8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
-	ddd = cvtregp(cpu, (op & 0x30) >> 4);
+	ddd = cvtregp_sp(cpu, (op & 0x30) >> 4);
 	(*ddd)--;
 	cpu->PC.W++;
 	cpu->clocks += 5;
@@ -340,7 +340,7 @@ static int	ldax(i8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
-	ddd = cvtregp(cpu, (op & 0x10) >> 4);
+	ddd = cvtregp_sp(cpu, (op & 0x10) >> 4);
 	cpu->AF.B.h = getmem(mem, *ddd);
 	cpu->PC.W++;
 	cpu->clocks += 7;
@@ -351,7 +351,7 @@ static int	stax(i8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
-	ddd = cvtregp(cpu, (op & 0x10) >> 4);
+	ddd = cvtregp_sp(cpu, (op & 0x10) >> 4);
 	setmem(mem, *ddd, cpu->AF.B.h);
 	cpu->PC.W++;
 	cpu->clocks += 7;
@@ -361,7 +361,7 @@ static int	lxi(i8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd, word;
 
-	ddd = cvtregp(cpu, (op & 0x30) >> 4);
+	ddd = cvtregp_sp(cpu, (op & 0x30) >> 4);
 	cpu->PC.W++;
 	word = getword(cpu, mem);
 	*ddd = word;
@@ -442,9 +442,9 @@ static u8	*cvtregs(i8080 *cpu, int ddd)
 	return NULL;
 }
 /*
- * return register pointer by instruction DDD no.
+ * return register pointer by instruction DDD no. 11=SP
  */
-static u16	*cvtregp(i8080 *cpu, int ddd)
+static u16	*cvtregp_sp(i8080 *cpu, int ddd)
 {
 	switch(ddd) {
 		case 0:
@@ -466,8 +466,8 @@ static u16	*cvtregp(i8080 *cpu, int ddd)
 static u16	popword(i8080 *cpu, u8 *mem)
 {
 	u8	h,l;
-	l = mem[cpu->SP.W++];
-	h = mem[cpu->SP.W++];
+	l = getmem(mem, cpu->SP.W++);
+	h = getmem(mem, cpu->SP.W++);
 	return h<<8 | l;
 }
 /*
@@ -478,8 +478,8 @@ static u16	pushword(i8080 *cpu, u8 *mem, u16 word)
 	u8	h,l;
 	h = word >> 8;
 	l = word & 0xff;
-	mem[--cpu->SP.W] = h;
-	mem[--cpu->SP.W] = l;
+	setmem(mem, --cpu->SP.W, h);
+	setmem(mem, --cpu->SP.W, l);
 	return h<<8 | l;
 }
 /*
@@ -503,7 +503,7 @@ static u8	getbyte(i8080 *cpu, u8 *mem)
 }
 
 /*
- * get memory byte
+ * get memory byte and print debug
  */
 static u8	getmem(u8 *mem, u16 offset)
 {
@@ -511,7 +511,7 @@ static u8	getmem(u8 *mem, u16 offset)
 	return mem[offset];
 }
 /*
- * write memory byte
+ * write memory byte and print debug
  */
 void	setmem(u8 *mem, u16 offset, u8 byte)
 {
