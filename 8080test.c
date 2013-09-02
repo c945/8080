@@ -9,20 +9,19 @@ int	gethexfile(char *);
 
 int	main(int argc, char **argv, char **env)
 {
-	int	i,hlt;
+	int	i;
 	i8080	*cpu;
 
 	cpu = i8080_new();
-	if((i=gethexfile(argv[1]))) {
-		return i;
+	if(gethexfile(argv[1])) {
+		return 1;
 	}
 	i8080_dump(NULL, NULL);
 	for(i=0; i<32; i++) {
 		i8080_dump(cpu, mem);
-		hlt = i8080_run(cpu, mem);
-		if(hlt) break;
+		if(i8080_run(cpu, mem)) break;
 	}
-	return hlt;
+	return 0;
 }
 
 int	gethexfile(char *fname)
