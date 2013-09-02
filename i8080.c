@@ -3,37 +3,37 @@
 #include	"i8080.h"
 
 // internal funcion
-static int	mov( cpui8080_t, u8 *, u8);
-static int	mvi( cpui8080_t, u8 *, u8);
-static int	lxi( cpui8080_t, u8 *, u8);
-static int	hlt( cpui8080_t, u8 *, u8);
-static int	ldax(cpui8080_t, u8 *, u8);
-static int	stax(cpui8080_t, u8 *, u8);
-static int	dcr( cpui8080_t, u8 *, u8);
-static int	inx( cpui8080_t, u8 *, u8);
-static int	dcx( cpui8080_t, u8 *, u8);
-static int	dad( cpui8080_t, u8 *, u8);
-static int	add( cpui8080_t, u8 *, u8, int);
-static int	adi( cpui8080_t, u8 *, u8, int);
-static int	sub( cpui8080_t, u8 *, u8, int);
-static int	sbi( cpui8080_t, u8 *, u8, int);
-static int	inr( cpui8080_t, u8 *, u8);
-static u8	*cvtregs(cpui8080_t, int);
-static u16	*cvtregp(cpui8080_t, int);
-static u16	getword(cpui8080_t, u8 *);
-static u8	getbyte(cpui8080_t, u8 *);
-static u16	popword(cpui8080_t, u8 *);
-static u16	pushword(cpui8080_t, u8 *, u16);
+static int	mov( cpui8080 *, u8 *, u8);
+static int	mvi( cpui8080 *, u8 *, u8);
+static int	lxi( cpui8080 *, u8 *, u8);
+static int	hlt( cpui8080 *, u8 *, u8);
+static int	ldax(cpui8080 *, u8 *, u8);
+static int	stax(cpui8080 *, u8 *, u8);
+static int	dcr( cpui8080 *, u8 *, u8);
+static int	inx( cpui8080 *, u8 *, u8);
+static int	dcx( cpui8080 *, u8 *, u8);
+static int	dad( cpui8080 *, u8 *, u8);
+static int	add( cpui8080 *, u8 *, u8, int);
+static int	adi( cpui8080 *, u8 *, u8, int);
+static int	sub( cpui8080 *, u8 *, u8, int);
+static int	sbi( cpui8080 *, u8 *, u8, int);
+static int	inr( cpui8080 *, u8 *, u8);
+static u8	*cvtregs(cpui8080 *, int);
+static u16	*cvtregp(cpui8080 *, int);
+static u16	getword(cpui8080 *, u8 *);
+static u8	getbyte(cpui8080 *, u8 *);
+static u16	popword(cpui8080 *, u8 *);
+static u16	pushword(cpui8080 *, u8 *, u16);
 static u8	getmem(u8 *, u16);
 static void	setmem(u8 *, u16, u8);
 static void	illegal_ins(u8);
-static void	setflags_add(cpui8080_t, u16, u8);
-static void	setflags_sub(cpui8080_t, u16, u8);
-static void	setflags_inr(cpui8080_t, u8);
-static void	setflags_dcr(cpui8080_t, u8);
+static void	setflags_add(cpui8080 *, u16, u8);
+static void	setflags_sub(cpui8080 *, u16, u8);
+static void	setflags_inr(cpui8080 *, u8);
+static void	setflags_dcr(cpui8080 *, u8);
 static u16	u16_parity(u16);
 
-int	i8080_run(cpui8080_t cpu, u8 *mem)
+int	i8080_run(cpui8080 *cpu, u8 *mem)
 {
 	u8 	op, sop, wop, wop2;
 	u16	word;
@@ -171,7 +171,7 @@ int	i8080_run(cpui8080_t cpu, u8 *mem)
 	return ret;
 }
 
-static int	dcr(cpui8080_t cpu, u8 *mem, u8 op)
+static int	dcr(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u8	*sss, ans;
 
@@ -189,7 +189,7 @@ static int	dcr(cpui8080_t cpu, u8 *mem, u8 op)
 	return 0;
 }
 
-static int	inr(cpui8080_t cpu, u8 *mem, u8 op)
+static int	inr(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u8	*sss, ans;
 
@@ -207,7 +207,7 @@ static int	inr(cpui8080_t cpu, u8 *mem, u8 op)
 	return 0;
 }
 
-static int	sbi(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
+static int	sbi(cpui8080 *cpu, u8 *mem, u8 op, int with_carry)
 {
 	u8	imm, CY=0, old;
 	u16	ans;
@@ -226,7 +226,7 @@ static int	sbi(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
 	cpu->clocks += 7;
 	return 0;
 }
-static int	sub(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
+static int	sub(cpui8080 *cpu, u8 *mem, u8 op, int with_carry)
 {
 	u8	*sss, CY=0, old;
 	u16	ans;
@@ -253,7 +253,7 @@ static int	sub(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
 	return 0;
 }
 
-static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
+static int	adi(cpui8080 *cpu, u8 *mem, u8 op, int with_carry)
 {
 	u8	imm, CY=0, old;
 	u16	ans;
@@ -272,7 +272,7 @@ static int	adi(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
 	cpu->clocks += 7;
 	return 0;
 }
-static int	add(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
+static int	add(cpui8080 *cpu, u8 *mem, u8 op, int with_carry)
 {
 	u8	*sss, CY=0, old;
 	u16	ans;
@@ -300,7 +300,7 @@ static int	add(cpui8080_t cpu, u8 *mem, u8 op, int with_carry)
 	return 0;
 }
 
-static int	dad(cpui8080_t cpu, u8 *mem, u8 op)
+static int	dad(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd, hl;
 
@@ -316,7 +316,7 @@ static int	dad(cpui8080_t cpu, u8 *mem, u8 op)
 	}
 	return 0;
 }
-static int	inx(cpui8080_t cpu, u8 *mem, u8 op)
+static int	inx(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -326,7 +326,7 @@ static int	inx(cpui8080_t cpu, u8 *mem, u8 op)
 	cpu->clocks += 5;
 	return 0;
 }
-static int	dcx(cpui8080_t cpu, u8 *mem, u8 op)
+static int	dcx(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -336,7 +336,7 @@ static int	dcx(cpui8080_t cpu, u8 *mem, u8 op)
 	cpu->clocks += 5;
 	return 0;
 }
-static int	ldax(cpui8080_t cpu, u8 *mem, u8 op)
+static int	ldax(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -347,7 +347,7 @@ static int	ldax(cpui8080_t cpu, u8 *mem, u8 op)
 	return 0;
 	
 }
-static int	stax(cpui8080_t cpu, u8 *mem, u8 op)
+static int	stax(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd;
 
@@ -357,7 +357,7 @@ static int	stax(cpui8080_t cpu, u8 *mem, u8 op)
 	cpu->clocks += 7;
 	return 0;
 }
-static int	lxi(cpui8080_t cpu, u8 *mem, u8 op)
+static int	lxi(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u16	*ddd, word;
 
@@ -369,7 +369,7 @@ static int	lxi(cpui8080_t cpu, u8 *mem, u8 op)
 	return 0;
 }
 
-static int	mvi(cpui8080_t cpu, u8 *mem, u8 op)
+static int	mvi(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u8	*ddd, imm;
 
@@ -385,7 +385,7 @@ static int	mvi(cpui8080_t cpu, u8 *mem, u8 op)
 	}
 	return 0;
 }
-static int	mov(cpui8080_t cpu, u8 *mem, u8 op)
+static int	mov(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	u8	*ddd, *sss;
 
@@ -407,7 +407,7 @@ static int	mov(cpui8080_t cpu, u8 *mem, u8 op)
 	}
 	return 0;
 }
-static int	hlt(cpui8080_t cpu, u8 *mem, u8 op)
+static int	hlt(cpui8080 *cpu, u8 *mem, u8 op)
 {
 	// cpu->PC.W++;
 	cpu->clocks += 7;
@@ -417,7 +417,7 @@ static int	hlt(cpui8080_t cpu, u8 *mem, u8 op)
 /*
  * return register pointer by instruction DDD no.
  */
-static u8	*cvtregs(cpui8080_t cpu, int ddd)
+static u8	*cvtregs(cpui8080 *cpu, int ddd)
 {
 	switch(ddd) {
 		case 0:
@@ -444,7 +444,7 @@ static u8	*cvtregs(cpui8080_t cpu, int ddd)
 /*
  * return register pointer by instruction DDD no.
  */
-static u16	*cvtregp(cpui8080_t cpu, int ddd)
+static u16	*cvtregp(cpui8080 *cpu, int ddd)
 {
 	switch(ddd) {
 		case 0:
@@ -463,7 +463,7 @@ static u16	*cvtregp(cpui8080_t cpu, int ddd)
 /*
  * return stack word by sp and sp+1. after sp += 2
  */
-static u16	popword(cpui8080_t cpu, u8 *mem)
+static u16	popword(cpui8080 *cpu, u8 *mem)
 {
 	u8	h,l;
 	l = mem[cpu->SP.W++];
@@ -473,7 +473,7 @@ static u16	popword(cpui8080_t cpu, u8 *mem)
 /*
  * push stack by sp-1 and sp-2. after sp -= 2
  */
-static u16	pushword(cpui8080_t cpu, u8 *mem, u16 word)
+static u16	pushword(cpui8080 *cpu, u8 *mem, u16 word)
 {
 	u8	h,l;
 	h = word >> 8;
@@ -485,7 +485,7 @@ static u16	pushword(cpui8080_t cpu, u8 *mem, u16 word)
 /*
  * return immedate word by pc and pc+1. after pc += 2
  */
-static u16	getword(cpui8080_t cpu, u8 *mem)
+static u16	getword(cpui8080 *cpu, u8 *mem)
 {
 	u8	h,l;
 	l = mem[cpu->PC.W++];
@@ -495,7 +495,7 @@ static u16	getword(cpui8080_t cpu, u8 *mem)
 /*
  * return immedate byte by pc. after pc += 1
  */
-static u8	getbyte(cpui8080_t cpu, u8 *mem)
+static u8	getbyte(cpui8080 *cpu, u8 *mem)
 {
 	u8	l;
 	l = mem[cpu->PC.W++];
@@ -519,10 +519,10 @@ void	setmem(u8 *mem, u16 offset, u8 byte)
 	mem[offset] = byte;
 }
 
-cpui8080_t	i8080_new()
+cpui8080	*i8080_new()
 {
-	cpui8080_t p;
-	p = (cpui8080_t)malloc(sizeof(cpui8080)); 
+	cpui8080 *p;
+	p = (cpui8080 *)malloc(sizeof(cpui8080)); 
 
 	p->SP.W = p->PC.W = 0;
 	p->clocks = 0;
@@ -531,7 +531,7 @@ cpui8080_t	i8080_new()
 	return p;
 }
 
-void	i8080_dump(cpui8080_t p, u8 *mem)
+void	i8080_dump(cpui8080 *p, u8 *mem)
 {
 	u8	op;
 	if(p == NULL) {
@@ -567,7 +567,7 @@ static void	illegal_ins(u8 op)
 	printf("%02X illegal opecode\n", op);
 }
 
-static void	setflags_add(cpui8080_t cpu, u16 ans, u8 old)
+static void	setflags_add(cpui8080 *cpu, u16 ans, u8 old)
 {
 	if(ans > (u16)0x00ff) {
 		cpu->AF.B.l |= i8080F_CY;
@@ -595,7 +595,7 @@ static void	setflags_add(cpui8080_t cpu, u16 ans, u8 old)
 		cpu->AF.B.l &= (~ i8080F_AC);
 	}
 }
-static void	setflags_sub(cpui8080_t cpu, u16 ans, u8 old)
+static void	setflags_sub(cpui8080 *cpu, u16 ans, u8 old)
 {
 	setflags_add(cpu, ans, old);
 	if((ans & 0x000f) > (old & 0x0f)) {
@@ -604,7 +604,7 @@ static void	setflags_sub(cpui8080_t cpu, u16 ans, u8 old)
 		cpu->AF.B.l &= (~ i8080F_AC);
 	}
 }
-static void	setflags_inr(cpui8080_t cpu, u8 ans)
+static void	setflags_inr(cpui8080 *cpu, u8 ans)
 {
 	if(ans == 0) {
 		cpu->AF.B.l |= i8080F_Z;
@@ -627,7 +627,7 @@ static void	setflags_inr(cpui8080_t cpu, u8 ans)
 		cpu->AF.B.l &= (~ i8080F_AC);
 	}
 }
-static void	setflags_dcr(cpui8080_t cpu, u8 ans)
+static void	setflags_dcr(cpui8080 *cpu, u8 ans)
 {
 	setflags_inr(cpu, ans);
 	if((ans & 0x0f) == 0xf) {

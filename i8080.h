@@ -15,7 +15,7 @@ typedef struct {
 	pair	AF,BC,DE,HL,SP,PC;
 	long	clocks;
 	int	int_f;
-} cpui8080, *cpui8080_t;
+} cpui8080;
 
 /*
  * Flag Bit Pattern
@@ -35,8 +35,8 @@ typedef struct {
 #define	i8080_HLT	1	/* hlt instruction	*/
 #define	i8080_ILG	-2	/* illegal opcode	*/
 
-extern	cpui8080_t	i8080_new();
-extern	int	i8080_run(cpui8080_t, u8 *);
-extern	void	i8080_dump(cpui8080_t, u8 *);
+extern	cpui8080	*i8080_new();
+extern	int	i8080_run(cpui8080 *, u8 *);
+extern	void	i8080_dump(cpui8080 *, u8 *);
 
 #endif
