@@ -20,6 +20,7 @@ static int	sbi( i8080 *, u8 *, u8, int);
 static int	inr( i8080 *, u8 *, u8);
 static u8	*cvtregs(i8080 *, int);
 static u16	*cvtregp_sp(i8080 *, int);
+static u16	*cvtregp_af(i8080 *, int);
 static u16	getword(i8080 *, u8 *);
 static u8	getbyte(i8080 *, u8 *);
 static u16	popword(i8080 *, u8 *);
@@ -36,7 +37,7 @@ static u16	u16_parity(u16);
 int	i8080_run(i8080 *cpu, u8 *mem)
 {
 	u8 	op, sop, wop, wop2;
-	u16	word;
+	u16	word, *regp;
 	int	ret;
 
 	ret = 0;
@@ -163,6 +164,20 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	}
 	else if((op & 0xc7) == 0x5 ) {	/* DCR r(M) */
 		ret = dcr(cpu, mem, op);
+	}
+	else if((op & 0xcf) == 0xc5 ) {	/* PUSH rp */
+		regp = cvtregp_af(cpu, (op & 0x30) >> 4);
+		pushword(cpu, mem, *regp);
+		cpu->PC.W++;
+		cpu->clocks += 11;
+		ret = 0;
+	}
+	else if((op & 0xcf) == 0xc1 ) {	/* POP rp */
+		regp = cvtregp_af(cpu, (op & 0x30) >> 4);
+		*regp = popword(cpu, mem);
+		cpu->PC.W++;
+		cpu->clocks += 11;
+		ret = 0;
 	}
 	else {
 		illegal_ins(op);
@@ -436,6 +451,25 @@ static u8	*cvtregs(i8080 *cpu, int ddd)
 			return NULL;
 		case 7:
 			return &cpu->AF.B.h;
+		default:
+			return NULL;
+	}
+	return NULL;
+}
+/*
+ * return register pointer by instruction DDD no. 11=PSW
+ */
+static u16	*cvtregp_af(i8080 *cpu, int ddd)
+{
+	switch(ddd) {
+		case 0:
+			return &cpu->BC.W;
+		case 1:
+			return &cpu->DE.W;
+		case 2:
+			return &cpu->HL.W;
+		case 3:
+			return &cpu->AF.W;
 		default:
 			return NULL;
 	}
