@@ -288,10 +288,10 @@ static int	anx(i8080 *cpu, u8 *mem, u8 op, int imm)
 		sss = cvtregs(cpu, op & 0x07);
 		if(sss == NULL) {	/* ANA M */
 			ans = getmem(mem, cpu->HL.W);
-			cpu->clocks += 10;
+			cpu->clocks += 7;
 		} else {
 			ans = *sss;
-			cpu->clocks += 5;
+			cpu->clocks += 4;
 		}
 	} else {	/* ani */
 		ans = getbyte(cpu, mem);
@@ -316,10 +316,10 @@ static int	orx(i8080 *cpu, u8 *mem, u8 op, int imm)
 		sss = cvtregs(cpu, op & 0x07);
 		if(sss == NULL) {	/* ANA M */
 			ans = getmem(mem, cpu->HL.W);
-			cpu->clocks += 10;
+			cpu->clocks += 7;
 		} else {
 			ans = *sss;
-			cpu->clocks += 5;
+			cpu->clocks += 4;
 		}
 	} else {	/* ani */
 		ans = getbyte(cpu, mem);
@@ -344,10 +344,10 @@ static int	xrx(i8080 *cpu, u8 *mem, u8 op, int imm)
 		sss = cvtregs(cpu, op & 0x07);
 		if(sss == NULL) {	/* ANA M */
 			ans = getmem(mem, cpu->HL.W);
-			cpu->clocks += 10;
+			cpu->clocks += 7;
 		} else {
 			ans = *sss;
-			cpu->clocks += 5;
+			cpu->clocks += 4;
 		}
 	} else {	/* ani */
 		ans = getbyte(cpu, mem);
