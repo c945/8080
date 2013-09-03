@@ -18,6 +18,7 @@ static int	adi( i8080 *, u8 *, u8, int);
 static int	sub( i8080 *, u8 *, u8, int);
 static int	sbi( i8080 *, u8 *, u8, int);
 static int	inr( i8080 *, u8 *, u8);
+static int	anx(i8080 *, u8 *, u8, int);
 static u8	*cvtregs(i8080 *, int);
 static u16	*cvtregp_sp(i8080 *, int);
 static u16	*cvtregp_af(i8080 *, int);
@@ -195,6 +196,12 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 		cpu->clocks += 4;
 		ret = 0;
 	}
+	else if((op & 0xf8) == 0xa0 ) {	/* ANA r(M) */
+		ret = anx(cpu, mem, op, 0);
+	}
+	else if(op == 0xe6 ) {	/* ANI byte */
+		ret = anx(cpu, mem, op, -1);
+	}
 	else {
 		illegal_ins(op);
 		ret = -1;
@@ -245,6 +252,34 @@ static int	inr(i8080 *cpu, u8 *mem, u8 op)
 	} else {
 		cpu->i8080FLAGS &= ~i8080F_AC;
 	}
+	cpu->PC.W++;
+	return 0;
+}
+
+/*
+ * if imm=0 then ana instruction, else ani instruction
+ */
+static int	anx(i8080 *cpu, u8 *mem, u8 op, int imm)
+{
+	u8	*sss, ans;
+
+	if(imm == 0) {	/* ana */
+		sss = cvtregs(cpu, op & 0x07);
+		if(sss == NULL) {	/* ANA M */
+			ans = getmem(mem, cpu->HL.W);
+			cpu->clocks += 10;
+		} else {
+			ans = *sss;
+			cpu->clocks += 5;
+		}
+	} else {	/* ani */
+		ans = getbyte(cpu, mem);
+		cpu->clocks += 7;
+	}
+	cpu->i8080ACC &= ans;			/* ACC = ACC + ans */
+	setflags_szp(cpu, cpu->i8080ACC);
+ 	cpu->i8080FLAGS &= ~i8080F_CY;
+ 	cpu->i8080FLAGS &= ~i8080F_AC;
 	cpu->PC.W++;
 	return 0;
 }
