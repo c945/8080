@@ -21,6 +21,7 @@ static int	inr( i8080 *, u8 *, u8);
 static int	anx(i8080 *, u8 *, u8, int);
 static int	orx(i8080 *, u8 *, u8, int);
 static int	xrx(i8080 *, u8 *, u8, int);
+static int	cmx(i8080 *, u8 *, u8, int);
 static u8	*cvtregs(i8080 *, int);
 static u16	*cvtregp_sp(i8080 *, int);
 static u16	*cvtregp_af(i8080 *, int);
@@ -216,11 +217,17 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	else if(op == 0xee ) {	/* XRI byte */
 		ret = xrx(cpu, mem, op, -1);
 	}
+	else if((op & 0xf8) == 0xb8) {	/* CMP r(M) */
+		ret = cmx(cpu, mem, op, 0);
+	}
+	else if(op == 0xfe) {		/* CPI byte */
+		ret = cmx(cpu, mem, op, -1);
+	}
 	else {
 		illegal_ins(op);
 		ret = -1;
 	}
-	return ret;
+	return ret;	/* END */
 }
 
 static int	dcr(i8080 *cpu, u8 *mem, u8 op)
@@ -350,6 +357,33 @@ static int	xrx(i8080 *cpu, u8 *mem, u8 op, int imm)
 	setflags_szp(cpu, cpu->i8080ACC);
  	cpu->i8080FLAGS &= ~i8080F_CY;
  	cpu->i8080FLAGS &= ~i8080F_AC;
+	cpu->PC.W++;
+	return 0;
+}
+
+/*
+ * if imm=0 then CMP instruction, else CPI instruction
+ */
+static int	cmx(i8080 *cpu, u8 *mem, u8 op, int imm)
+{
+	u8	*sss, src;
+	u16	ans;
+
+	if(imm == 0) {	/* CMP */
+		sss = cvtregs(cpu, op & 0x07);
+		if(sss == NULL) {	/* CMP M */
+			src = getmem(mem, cpu->HL.W);
+			cpu->clocks += 7;
+		} else {
+			src = *sss;
+			cpu->clocks += 4;
+		}
+	} else {	/* CPI */
+		src = getbyte(cpu, mem);
+		cpu->clocks += 7;
+	}
+	ans = cpu->i8080ACC - src;		/* ACC - source */
+	setflags_sub(cpu, ans, cpu->i8080ACC);
 	cpu->PC.W++;
 	return 0;
 }
