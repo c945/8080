@@ -11,11 +11,15 @@ typedef union {
 	} B;
 	u16 W;
 } pair;
+
 typedef struct {
 	pair	AF,BC,DE,HL,SP,PC;
 	long	clocks;
 	int	int_f;
 } i8080;
+
+#define	i8080ACC	AF.B.h	/* pair of Acc */
+#define	i8080FLAGS	AF.B.l	/* pair of Flags */
 
 /*
  * Flag Bit Pattern

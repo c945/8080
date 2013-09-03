@@ -61,7 +61,7 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	else if(op == 0x3a) {		/* LDA addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
-		cpu->AF.B.h = getmem(mem,word);
+		cpu->i8080ACC = getmem(mem,word);
 		cpu->clocks += 13;
 	}
 	else if(op == 0x2a) {		/* LHLD addr addr */
@@ -74,7 +74,7 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	else if(op == 0x32) {		/* STA addr addr */
 		cpu->PC.W++;
 		word = getword(cpu, mem);
-		setmem(mem, word, cpu->AF.B.h);
+		setmem(mem, word, cpu->i8080ACC);
 		cpu->clocks += 13;
 	}
 	else if(op == 0x22) {		/* SHLD addr addr */
@@ -107,17 +107,17 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 		ret = dad(cpu, mem, op);
 	}
 	else if(op == 0x2f) {		/* CMA */
-		cpu->AF.B.h =  ~cpu->AF.B.h;
+		cpu->i8080ACC =  ~cpu->i8080ACC;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
 	else if(op == 0x3f) {		/* CMC */
-		cpu->AF.B.l ^= i8080F_CY;
+		cpu->i8080FLAGS ^= i8080F_CY;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
 	else if(op == 0x37) {		/* STC */
-		cpu->AF.B.l |= i8080F_CY;
+		cpu->i8080FLAGS |= i8080F_CY;
 		cpu->PC.W++;
 		cpu->clocks += 4;
 	}
@@ -217,9 +217,9 @@ static int	dcr(i8080 *cpu, u8 *mem, u8 op)
 	}
 	setflags_szp(cpu, ans);
 	if((ans & 0x0f) == 0x0f) {
-		cpu->AF.B.l |= i8080F_AC;
+		cpu->i8080FLAGS |= i8080F_AC;
 	} else {
-		cpu->AF.B.l &= (~ i8080F_AC);
+		cpu->i8080FLAGS &= ~i8080F_AC;
 	}
 	cpu->PC.W++;
 	return 0;
@@ -241,9 +241,9 @@ static int	inr(i8080 *cpu, u8 *mem, u8 op)
 
 	setflags_szp(cpu, ans);
 	if((ans & 0x0f) == 0) {
-		cpu->AF.B.l |= i8080F_AC;
+		cpu->i8080FLAGS |= i8080F_AC;
 	} else {
-		cpu->AF.B.l &= (~ i8080F_AC);
+		cpu->i8080FLAGS &= ~i8080F_AC;
 	}
 	cpu->PC.W++;
 	return 0;
@@ -254,17 +254,17 @@ static int	sbi(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	u8	imm, CY=0, old;
 	u16	ans;
 
-	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
+	if((with_carry) && cpu->i8080FLAGS & i8080F_CY) {
 		CY = 1;
 	} else {
 		CY = 0;
 	}
-	cpu->PC.W++;
 	imm = getbyte(cpu, mem);
-	ans = cpu->AF.B.h - imm - CY;
-	old = cpu->AF.B.h;	/* save old ACC */
-	cpu->AF.B.h = ans;
+	ans = cpu->i8080ACC - imm - CY;
+	old = cpu->i8080ACC;	/* save old ACC */
+	cpu->i8080ACC = ans;
 	setflags_sub(cpu, ans, old);
+	cpu->PC.W++;
 	cpu->clocks += 7;
 	return 0;
 }
@@ -274,20 +274,20 @@ static int	sub(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	u16	ans;
 
 	sss = cvtregs(cpu, (op & 0x07));
-	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
+	if((with_carry) && cpu->i8080FLAGS & i8080F_CY) {
 		CY = 1;
 	} else {
 		CY = 0;
 	}
 	if(sss == NULL) {	/* ADD(C) M */
-		ans = cpu->AF.B.h - getmem(mem, cpu->HL.W) - CY;
-		old = cpu->AF.B.h;	/* save old ACC */
-		cpu->AF.B.h = ans;
+		ans = cpu->i8080ACC - getmem(mem, cpu->HL.W) - CY;
+		old = cpu->i8080ACC;	/* save old ACC */
+		cpu->i8080ACC = ans;
 		cpu->clocks += 7;
 	} else {
-		ans = cpu->AF.B.h - *sss - CY;
-		old = cpu->AF.B.h;	/* save old ACC */
-		cpu->AF.B.h = ans;
+		ans = cpu->i8080ACC - *sss - CY;
+		old = cpu->i8080ACC;	/* save old ACC */
+		cpu->i8080ACC = ans;
 		cpu->clocks += 4;
 	}
 	setflags_sub(cpu, ans, old);
@@ -300,17 +300,17 @@ static int	adi(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	u8	imm, CY=0, old;
 	u16	ans;
 
-	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
+	if((with_carry) && cpu->i8080FLAGS & i8080F_CY) {
 		CY = 1;
 	} else {
 		CY = 0;
 	}
-	cpu->PC.W++;
 	imm = getbyte(cpu, mem);
-	ans = cpu->AF.B.h + imm + CY;
-	old = cpu->AF.B.h;	/* save old ACC */
-	cpu->AF.B.h = ans;
+	ans = cpu->i8080ACC + imm + CY;
+	old = cpu->i8080ACC;	/* save old ACC */
+	cpu->i8080ACC = ans;
 	setflags_add(cpu, ans, old);
+	cpu->PC.W++;
 	cpu->clocks += 7;
 	return 0;
 }
@@ -320,20 +320,20 @@ static int	add(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	u16	ans;
 
 	sss = cvtregs(cpu, (op & 0x07));
-	if((with_carry) && cpu->AF.B.l & i8080F_CY) {
+	if((with_carry) && cpu->i8080FLAGS & i8080F_CY) {
 		CY = 1;
 	} else {
 		CY = 0;
 	}
 	if(sss == NULL) {	/* ADD(C) M */
-		ans = cpu->AF.B.h + getmem(mem, cpu->HL.W) + CY;
-		old = cpu->AF.B.h;	/* save old ACC */
-		cpu->AF.B.h = ans;
+		ans = cpu->i8080ACC + getmem(mem, cpu->HL.W) + CY;
+		old = cpu->i8080ACC;	/* save old ACC */
+		cpu->i8080ACC = ans;
 		cpu->clocks += 7;
 	} else {
-		ans = cpu->AF.B.h + *sss + CY;
-		old = cpu->AF.B.h;	/* save old ACC */
-		cpu->AF.B.h = ans;
+		ans = cpu->i8080ACC + *sss + CY;
+		old = cpu->i8080ACC;	/* save old ACC */
+		cpu->i8080ACC = ans;
 		cpu->clocks += 4;
 	}
 	setflags_add(cpu, ans, old);
@@ -352,9 +352,9 @@ static int	dad(i8080 *cpu, u8 *mem, u8 op)
 	cpu->PC.W++;
 	cpu->clocks += 10;
 	if(cpu->HL.W >= hl && cpu->HL.W >= *ddd) {
- 		cpu->AF.B.l &= ~i8080F_CY;
+ 		cpu->i8080FLAGS &= ~i8080F_CY;
 	} else {
- 		cpu->AF.B.l |= i8080F_CY;
+ 		cpu->i8080FLAGS |= i8080F_CY;
 	}
 	return 0;
 }
@@ -383,7 +383,7 @@ static int	ldax(i8080 *cpu, u8 *mem, u8 op)
 	u16	*ddd;
 
 	ddd = cvtregp_sp(cpu, (op & 0x10) >> 4);
-	cpu->AF.B.h = getmem(mem, *ddd);
+	cpu->i8080ACC = getmem(mem, *ddd);
 	cpu->PC.W++;
 	cpu->clocks += 7;
 	return 0;
@@ -394,7 +394,7 @@ static int	stax(i8080 *cpu, u8 *mem, u8 op)
 	u16	*ddd;
 
 	ddd = cvtregp_sp(cpu, (op & 0x10) >> 4);
-	setmem(mem, *ddd, cpu->AF.B.h);
+	setmem(mem, *ddd, cpu->i8080ACC);
 	cpu->PC.W++;
 	cpu->clocks += 7;
 	return 0;
@@ -415,7 +415,6 @@ static int	mvi(i8080 *cpu, u8 *mem, u8 op)
 {
 	u8	*ddd, imm;
 
-	cpu->PC.W++;
 	ddd = cvtregs(cpu, (op & 0x38) >> 3);
 	imm = getbyte(cpu, mem);
 	if(ddd == NULL) {		/* mvi M,data */
@@ -425,6 +424,7 @@ static int	mvi(i8080 *cpu, u8 *mem, u8 op)
 		*ddd = imm;		/* mvi r,data */
 		cpu->clocks += 7;
 	}
+	cpu->PC.W++;
 	return 0;
 }
 static int	mov(i8080 *cpu, u8 *mem, u8 op)
@@ -477,7 +477,7 @@ static u8	*cvtregs(i8080 *cpu, int ddd)
 		case 6:
 			return NULL;
 		case 7:
-			return &cpu->AF.B.h;
+			return &cpu->i8080ACC;
 		default:
 			return NULL;
 	}
@@ -554,12 +554,12 @@ static u16	getword(i8080 *cpu, u8 *mem)
 	return h<<8 | l;
 }
 /*
- * return immedate byte by pc. after pc += 1
+ * return immedate next instruction byte by pc. after pc += 1
  */
 static u8	getbyte(i8080 *cpu, u8 *mem)
 {
 	u8	l;
-	l = mem[cpu->PC.W++];
+	l = mem[++cpu->PC.W];
 	return l;
 }
 
@@ -588,7 +588,7 @@ i8080	*i8080_new()
 	p->SP.W = p->PC.W = 0;
 	p->clocks = 0;
 	p->int_f  = 0;
-	p->AF.B.l = i8080F_B1;
+	p->i8080FLAGS = i8080F_B1;
 	return p;
 }
 
@@ -603,23 +603,19 @@ void	i8080_dump(i8080 *p, u8 *mem)
 	printf("%4ld ", p->clocks);
 	printf("%04X ", p->PC.W);
 	printf("%02X ", op);
-	printf("%c", (p->AF.B.l & i8080F_S  ? 'S' : 's'));
-	printf("%c", (p->AF.B.l & i8080F_Z  ? 'Z' : 'z'));
-	printf("%c", (p->AF.B.l & i8080F_B5 ? '+' : '-')); /* not use */
-	printf("%c", (p->AF.B.l & i8080F_AC ? 'A' : 'a'));
-	printf("%c", (p->AF.B.l & i8080F_B3 ? '+' : '-')); /* not use */
-	printf("%c", (p->AF.B.l & i8080F_P  ? 'P' : 'p'));
-	printf("%c", (p->AF.B.l & i8080F_B1 ? '+' : '-')); /* not use */
-	printf("%c ",(p->AF.B.l & i8080F_CY ? 'C' : 'c'));
-	printf("%02X", p->AF.B.h);
-	printf("%02X ", p->AF.B.l);
-	printf("%02X", p->BC.B.h);
-	printf("%02X ", p->BC.B.l);
-	printf("%02X", p->DE.B.h);
-	printf("%02X ", p->DE.B.l);
-	printf("%02X", p->HL.B.h);
-	printf("%02X ", p->HL.B.l);
-	printf("%04X", p->SP.W);
+	printf("%c", (p->i8080FLAGS & i8080F_S  ? 'S' : 's'));
+	printf("%c", (p->i8080FLAGS & i8080F_Z  ? 'Z' : 'z'));
+	printf("%c", (p->i8080FLAGS & i8080F_B5 ? '+' : '-')); /* not use */
+	printf("%c", (p->i8080FLAGS & i8080F_AC ? 'A' : 'a'));
+	printf("%c", (p->i8080FLAGS & i8080F_B3 ? '+' : '-')); /* not use */
+	printf("%c", (p->i8080FLAGS & i8080F_P  ? 'P' : 'p'));
+	printf("%c", (p->i8080FLAGS & i8080F_B1 ? '+' : '-')); /* not use */
+	printf("%c ",(p->i8080FLAGS & i8080F_CY ? 'C' : 'c'));
+	printf("%04X ", p->AF.W);
+	printf("%04X ", p->BC.W);
+	printf("%04X ", p->DE.W);
+	printf("%04X ", p->HL.W);
+	printf("%04X ", p->SP.W);
 	printf("\n");
 }
 
@@ -634,42 +630,42 @@ static void	illegal_ins(u8 op)
 static void	setflags_szp(i8080 *cpu, u16 ans)
 {
 	if(ans == 0) {
-		cpu->AF.B.l |= i8080F_Z;
+		cpu->i8080FLAGS |= i8080F_Z;
 	} else {
-		cpu->AF.B.l &= (~ i8080F_Z);
+		cpu->i8080FLAGS &= ~i8080F_Z;
 	}
 	if(ans & (u16)0x0080) {
-		cpu->AF.B.l |= i8080F_S;
+		cpu->i8080FLAGS |= i8080F_S;
 	} else {
-		cpu->AF.B.l &= (~ i8080F_S);
+		cpu->i8080FLAGS &= ~i8080F_S;
 	}
 	if(u16_parity(ans)) {
-		cpu->AF.B.l &= (~ i8080F_P);
+		cpu->i8080FLAGS &= ~i8080F_P;
 	} else {
-		cpu->AF.B.l |= i8080F_P;
+		cpu->i8080FLAGS |= i8080F_P;
 	}
 }
 static void	setflags_add(i8080 *cpu, u16 ans, u8 old)
 {
 	setflags_szp(cpu, ans);
 	if(ans > (u16)0x00ff) {
-		cpu->AF.B.l |= i8080F_CY;
+		cpu->i8080FLAGS |= i8080F_CY;
 	} else {
-		cpu->AF.B.l &= (~ i8080F_CY);
+		cpu->i8080FLAGS &= ~i8080F_CY;
 	}
 	if((ans & 0x000f) < (old & 0x0f)) {
-		cpu->AF.B.l |= i8080F_AC;
+		cpu->i8080FLAGS |= i8080F_AC;
 	} else {
-		cpu->AF.B.l &= (~ i8080F_AC);
+		cpu->i8080FLAGS &= ~i8080F_AC;
 	}
 }
 static void	setflags_sub(i8080 *cpu, u16 ans, u8 old)
 {
 	setflags_add(cpu, ans, old);
 	if((ans & 0x000f) > (old & 0x0f)) {
-		cpu->AF.B.l |= i8080F_AC;
+		cpu->i8080FLAGS |= i8080F_AC;
 	} else {
-		cpu->AF.B.l &= (~ i8080F_AC);
+		cpu->i8080FLAGS &= ~i8080F_AC;
 	}
 }
 
