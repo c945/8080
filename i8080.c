@@ -28,10 +28,9 @@ static u16	pushword(i8080 *, u8 *, u16);
 static u8	getmem(u8 *, u16);
 static void	setmem(u8 *, u16, u8);
 static void	illegal_ins(u8);
+static void	setflags_szp(i8080 *, u16);
 static void	setflags_add(i8080 *, u16, u8);
 static void	setflags_sub(i8080 *, u16, u8);
-static void	setflags_inr(i8080 *, u8);
-static void	setflags_dcr(i8080 *, u8);
 static u16	u16_parity(u16);
 
 int	i8080_run(i8080 *cpu, u8 *mem)
@@ -216,7 +215,12 @@ static int	dcr(i8080 *cpu, u8 *mem, u8 op)
 		ans = --*sss;
 		cpu->clocks += 5;
 	}
-	setflags_dcr(cpu, ans);
+	setflags_szp(cpu, ans);
+	if((ans & 0x0f) == 0x0f) {
+		cpu->AF.B.l |= i8080F_AC;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_AC);
+	}
 	cpu->PC.W++;
 	return 0;
 }
@@ -234,7 +238,13 @@ static int	inr(i8080 *cpu, u8 *mem, u8 op)
 		ans = ++*sss;
 		cpu->clocks += 5;
 	}
-	setflags_inr(cpu, ans);
+
+	setflags_szp(cpu, ans);
+	if((ans & 0x0f) == 0) {
+		cpu->AF.B.l |= i8080F_AC;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_AC);
+	}
 	cpu->PC.W++;
 	return 0;
 }
@@ -254,7 +264,7 @@ static int	sbi(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	ans = cpu->AF.B.h - imm - CY;
 	old = cpu->AF.B.h;	/* save old ACC */
 	cpu->AF.B.h = ans;
-	setflags_add(cpu, ans, old);
+	setflags_sub(cpu, ans, old);
 	cpu->clocks += 7;
 	return 0;
 }
@@ -300,7 +310,7 @@ static int	adi(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	ans = cpu->AF.B.h + imm + CY;
 	old = cpu->AF.B.h;	/* save old ACC */
 	cpu->AF.B.h = ans;
-	setflags_sub(cpu, ans, old);
+	setflags_add(cpu, ans, old);
 	cpu->clocks += 7;
 	return 0;
 }
@@ -316,12 +326,12 @@ static int	add(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 		CY = 0;
 	}
 	if(sss == NULL) {	/* ADD(C) M */
-		ans = cpu->AF.B.h + getmem(mem, cpu->HL.W);
+		ans = cpu->AF.B.h + getmem(mem, cpu->HL.W) + CY;
 		old = cpu->AF.B.h;	/* save old ACC */
 		cpu->AF.B.h = ans;
 		cpu->clocks += 7;
 	} else {
-		ans = cpu->AF.B.h + *sss;
+		ans = cpu->AF.B.h + *sss + CY;
 		old = cpu->AF.B.h;	/* save old ACC */
 		cpu->AF.B.h = ans;
 		cpu->clocks += 4;
@@ -618,44 +628,10 @@ static void	illegal_ins(u8 op)
 	printf("%02X illegal opecode\n", op);
 }
 
-static void	setflags_add(i8080 *cpu, u16 ans, u8 old)
-{
-	if(ans > (u16)0x00ff) {
-		cpu->AF.B.l |= i8080F_CY;
-	} else {
-		cpu->AF.B.l &= (~ i8080F_CY);
-	}
-	if(ans == 0) {
-		cpu->AF.B.l |= i8080F_Z;
-	} else {
-		cpu->AF.B.l &= (~ i8080F_Z);
-	}
-	if(ans & (u16)0x0080) {
-		cpu->AF.B.l |= i8080F_S;
-	} else {
-		cpu->AF.B.l &= (~ i8080F_S);
-	}
-	if(u16_parity(cpu->AF.B.h)) {
-		cpu->AF.B.l &= (~ i8080F_P);
-	} else {
-		cpu->AF.B.l |= i8080F_P;
-	}
-	if((ans & 0x000f) < (old & 0x0f)) {
-		cpu->AF.B.l |= i8080F_AC;
-	} else {
-		cpu->AF.B.l &= (~ i8080F_AC);
-	}
-}
-static void	setflags_sub(i8080 *cpu, u16 ans, u8 old)
-{
-	setflags_add(cpu, ans, old);
-	if((ans & 0x000f) > (old & 0x0f)) {
-		cpu->AF.B.l |= i8080F_AC;
-	} else {
-		cpu->AF.B.l &= (~ i8080F_AC);
-	}
-}
-static void	setflags_inr(i8080 *cpu, u8 ans)
+/*
+ * Sign Zero Parity Flags set by ans.
+ */
+static void	setflags_szp(i8080 *cpu, u16 ans)
 {
 	if(ans == 0) {
 		cpu->AF.B.l |= i8080F_Z;
@@ -672,16 +648,25 @@ static void	setflags_inr(i8080 *cpu, u8 ans)
 	} else {
 		cpu->AF.B.l |= i8080F_P;
 	}
-	if((ans & 0x0f) == 0) {
+}
+static void	setflags_add(i8080 *cpu, u16 ans, u8 old)
+{
+	setflags_szp(cpu, ans);
+	if(ans > (u16)0x00ff) {
+		cpu->AF.B.l |= i8080F_CY;
+	} else {
+		cpu->AF.B.l &= (~ i8080F_CY);
+	}
+	if((ans & 0x000f) < (old & 0x0f)) {
 		cpu->AF.B.l |= i8080F_AC;
 	} else {
 		cpu->AF.B.l &= (~ i8080F_AC);
 	}
 }
-static void	setflags_dcr(i8080 *cpu, u8 ans)
+static void	setflags_sub(i8080 *cpu, u16 ans, u8 old)
 {
-	setflags_inr(cpu, ans);
-	if((ans & 0x0f) == 0xf) {
+	setflags_add(cpu, ans, old);
+	if((ans & 0x000f) > (old & 0x0f)) {
 		cpu->AF.B.l |= i8080F_AC;
 	} else {
 		cpu->AF.B.l &= (~ i8080F_AC);
