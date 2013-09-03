@@ -19,6 +19,8 @@ static int	sub( i8080 *, u8 *, u8, int);
 static int	sbi( i8080 *, u8 *, u8, int);
 static int	inr( i8080 *, u8 *, u8);
 static int	anx(i8080 *, u8 *, u8, int);
+static int	orx(i8080 *, u8 *, u8, int);
+static int	xrx(i8080 *, u8 *, u8, int);
 static u8	*cvtregs(i8080 *, int);
 static u16	*cvtregp_sp(i8080 *, int);
 static u16	*cvtregp_af(i8080 *, int);
@@ -202,6 +204,18 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	else if(op == 0xe6 ) {	/* ANI byte */
 		ret = anx(cpu, mem, op, -1);
 	}
+	else if((op & 0xf8) == 0xb0 ) {	/* ORA r(M) */
+		ret = orx(cpu, mem, op, 0);
+	}
+	else if(op == 0xf6 ) {	/* ORI byte */
+		ret = orx(cpu, mem, op, -1);
+	}
+	else if((op & 0xf8) == 0xa8 ) {	/* XRA r(M) */
+		ret = xrx(cpu, mem, op, 0);
+	}
+	else if(op == 0xee ) {	/* XRI byte */
+		ret = xrx(cpu, mem, op, -1);
+	}
 	else {
 		illegal_ins(op);
 		ret = -1;
@@ -276,7 +290,63 @@ static int	anx(i8080 *cpu, u8 *mem, u8 op, int imm)
 		ans = getbyte(cpu, mem);
 		cpu->clocks += 7;
 	}
-	cpu->i8080ACC &= ans;			/* ACC = ACC + ans */
+	cpu->i8080ACC &= ans;			/* ACC = ACC AND ans */
+	setflags_szp(cpu, cpu->i8080ACC);
+ 	cpu->i8080FLAGS &= ~i8080F_CY;
+ 	cpu->i8080FLAGS &= ~i8080F_AC;
+	cpu->PC.W++;
+	return 0;
+}
+
+/*
+ * if imm=0 then ora instruction, else ori instruction
+ */
+static int	orx(i8080 *cpu, u8 *mem, u8 op, int imm)
+{
+	u8	*sss, ans;
+
+	if(imm == 0) {	/* ana */
+		sss = cvtregs(cpu, op & 0x07);
+		if(sss == NULL) {	/* ANA M */
+			ans = getmem(mem, cpu->HL.W);
+			cpu->clocks += 10;
+		} else {
+			ans = *sss;
+			cpu->clocks += 5;
+		}
+	} else {	/* ani */
+		ans = getbyte(cpu, mem);
+		cpu->clocks += 7;
+	}
+	cpu->i8080ACC |= ans;			/* ACC = ACC OR ans */
+	setflags_szp(cpu, cpu->i8080ACC);
+ 	cpu->i8080FLAGS &= ~i8080F_CY;
+ 	cpu->i8080FLAGS &= ~i8080F_AC;
+	cpu->PC.W++;
+	return 0;
+}
+
+/*
+ * if imm=0 then xra instruction, else xri instruction
+ */
+static int	xrx(i8080 *cpu, u8 *mem, u8 op, int imm)
+{
+	u8	*sss, ans;
+
+	if(imm == 0) {	/* ana */
+		sss = cvtregs(cpu, op & 0x07);
+		if(sss == NULL) {	/* ANA M */
+			ans = getmem(mem, cpu->HL.W);
+			cpu->clocks += 10;
+		} else {
+			ans = *sss;
+			cpu->clocks += 5;
+		}
+	} else {	/* ani */
+		ans = getbyte(cpu, mem);
+		cpu->clocks += 7;
+	}
+	cpu->i8080ACC ^= ans;			/* ACC = ACC XOR ans */
 	setflags_szp(cpu, cpu->i8080ACC);
  	cpu->i8080FLAGS &= ~i8080F_CY;
  	cpu->i8080FLAGS &= ~i8080F_AC;
