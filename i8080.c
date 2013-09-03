@@ -184,6 +184,18 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 		cpu->clocks += 11;
 		ret = 0;
 	}
+	else if(op == 0xfb) {		/* EI */
+		cpu->int_f = 1;
+		cpu->PC.W++;
+		cpu->clocks += 4;
+		ret = 0;
+	}
+	else if(op == 0xf3) {		/* DI */
+		cpu->int_f = 0;
+		cpu->PC.W++;
+		cpu->clocks += 4;
+		ret = 0;
+	}
 	else {
 		illegal_ins(op);
 		ret = -1;
