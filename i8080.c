@@ -384,12 +384,12 @@ static int	sub(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	} else {
 		CY = 0;
 	}
-	if(sss == NULL) {	/* ADD(C) M */
+	if(sss == NULL) {	/* SUB M */
 		ans = cpu->i8080ACC - getmem(mem, cpu->HL.W) - CY;
 		old = cpu->i8080ACC;	/* save old ACC */
 		cpu->i8080ACC = ans;
 		cpu->clocks += 7;
-	} else {
+	} else {		/* SUB r */
 		ans = cpu->i8080ACC - *sss - CY;
 		old = cpu->i8080ACC;	/* save old ACC */
 		cpu->i8080ACC = ans;
@@ -430,12 +430,12 @@ static int	add(i8080 *cpu, u8 *mem, u8 op, int with_carry)
 	} else {
 		CY = 0;
 	}
-	if(sss == NULL) {	/* ADD(C) M */
+	if(sss == NULL) {	/* ADD M */
 		ans = cpu->i8080ACC + getmem(mem, cpu->HL.W) + CY;
 		old = cpu->i8080ACC;	/* save old ACC */
 		cpu->i8080ACC = ans;
 		cpu->clocks += 7;
-	} else {
+	} else { 		/* ADD r */
 		ans = cpu->i8080ACC + *sss + CY;
 		old = cpu->i8080ACC;	/* save old ACC */
 		cpu->i8080ACC = ans;
