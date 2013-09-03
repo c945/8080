@@ -35,11 +35,14 @@ static void	illegal_ins(u8);
 static void	setflags_szp(i8080 *, u16);
 static void	setflags_add(i8080 *, u16, u8);
 static void	setflags_sub(i8080 *, u16, u8);
+static int	chkflags_conditions(i8080 *, u8);
 static u16	u16_parity(u16);
+static void	syserr(char *);
+static char	sysmsg[1024];
 
 int	i8080_run(i8080 *cpu, u8 *mem)
 {
-	u8 	op, sop, wop, wop2;
+	u8 	op, sop, wop, wop2, tmp;
 	u16	word, *regp;
 	int	ret;
 
@@ -128,6 +131,15 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	else if(op == 0xc3) {		/* JMP adr,adr */
 		cpu->PC.W++;
 		cpu->PC.W = getword(cpu, mem);
+		cpu->clocks += 10;
+	}
+	else if((op & 0xc7) == 0xc2) {	/* JNZ/JZ/JNC/JC/JPO/JPE/JP/JM addr,addr */
+		if(chkflags_conditions(cpu, (op>>3)&0x07)) {
+			cpu->PC.W++;
+			cpu->PC.W = getword(cpu, mem);
+		} else {
+			cpu->PC.W += 3;
+		}
 		cpu->clocks += 10;
 	}
 	else if(op == 0xcd) {		/* CALL adr,adr */
@@ -222,6 +234,18 @@ int	i8080_run(i8080 *cpu, u8 *mem)
 	}
 	else if(op == 0xfe) {		/* CPI byte */
 		ret = cmx(cpu, mem, op, -1);
+	}
+	else if(op == 0xd3) {		/* OUT byte */
+		tmp = getbyte(cpu, mem);
+		i8080_out(cpu->i8080ACC, tmp);
+		cpu->PC.W++;
+		cpu->clocks += 10;
+	}
+	else if(op == 0xdb) {		/*  IN byte */
+		tmp = i8080_in(getbyte(cpu, mem));
+		cpu->i8080ACC = tmp;
+		cpu->PC.W++;
+		cpu->clocks += 10;
 	}
 	else {
 		illegal_ins(op);
@@ -807,6 +831,31 @@ static void	setflags_sub(i8080 *cpu, u16 ans, u8 old)
 		cpu->i8080FLAGS &= ~i8080F_AC;
 	}
 }
+static int	chkflags_conditions(i8080 *cpu, u8 CCC)
+{
+	switch(CCC) {
+		case 0: /* NZ(Z=0) */
+			if(! (cpu->i8080FLAGS & i8080F_Z)) return 1; break;
+		case 1: /*  Z(Z=1) */
+			if(cpu->i8080FLAGS & i8080F_Z) return 1; break;
+		case 2: /* NC(C=0) */
+			if(! (cpu->i8080FLAGS & i8080F_CY)) return 1; break;
+		case 3: /*  C(C=1) */
+			if(cpu->i8080FLAGS & i8080F_CY) return 1; break;
+		case 4: /* PO(P=0) */
+			if(! (cpu->i8080FLAGS & i8080F_P)) return 1; break;
+		case 5: /* PE(P=1) */
+			if(cpu->i8080FLAGS & i8080F_P) return 1; break;
+		case 6: /*  P(S=0) */
+			if(! (cpu->i8080FLAGS & i8080F_S)) return 1; break;
+		case 7: /*  M(S=1) */
+			if(cpu->i8080FLAGS & i8080F_S) return 1; break;
+		default:
+			sprintf(sysmsg,"chkflags_conditions illegal CCC %d", CCC);
+			syserr(sysmsg);
+	}
+	return 0;
+}
 
 /*
  * odd parity check, true if odd.
@@ -819,4 +868,10 @@ static u16	u16_parity(u16 x)
   x = x ^ (x >> 1);
 
   return x & 1;
+}
+
+static void syserr(char *str)
+{
+	puts(str);
+	exit(1);
 }

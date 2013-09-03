@@ -61,3 +61,14 @@ int	gethexfile(char *fname)
 	}
 	return 0;
 }
+
+u8 i8080_in(u8 port)
+{
+ printf("IN %02X 1\n", port);
+ return 1;
+}
+
+void i8080_out(u8 data, u8 port)
+{
+	printf("OUT %02X %02X\n", port, data);
+}

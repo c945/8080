@@ -42,5 +42,7 @@ typedef struct {
 extern	i8080	*i8080_new();
 extern	int	i8080_run(i8080 *, u8 *);
 extern	void	i8080_dump(i8080 *, u8 *);
+extern	void	i8080_out(u8, u8);
+extern	u8	i8080_in(u8);
 
 #endif
