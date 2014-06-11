@@ -1,0 +1,58 @@
+ AS V1.42 Beta [Bld 32] - source file t_cmp.asm - page 1 - 6/11/2014 17:07:33
+
+
+       1/       0 :                     	cpu	8080
+       2/       0 :                     	org	0
+       3/       0 : 3E 80               	mvi	a,80h		;A=80
+       4/       2 : FE 00               	cpi	0
+       5/       4 : FE 7F               	cpi	7fh
+       6/       6 : FE 80               	cpi	80h
+       7/       8 : FE 81               	cpi	81h
+       8/       A : 3E 00               	mvi	a,0
+       9/       C : FE 00               	cpi	0
+      10/       E : FE 7F               	cpi	7fh
+      11/      10 : FE 80               	cpi	80h
+      12/      12 : FE FF               	cpi	0ffh
+      13/      14 :                     
+      14/      14 : 76                  	hlt
+      15/      15 :                     
+ AS V1.42 Beta [Bld 32] - source file t_cmp.asm - page 2 - 6/11/2014 17:07:33
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE : i386-unknown-freebsd - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   6/11/2014 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8080 - | *MOMCPUNAME :                  8080 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*TIME :                    17:07:33 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     28 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 32] - source file t_cmp.asm - page 3 - 6/11/2014 17:07:33
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.01 seconds assembly time
+
+     15 lines source file
+      1 pass
+      0 errors
+      0 warnings

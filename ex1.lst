@@ -1,0 +1,110 @@
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 1 - 6/11/2014 17:07:23
+
+
+       1/       0 :                     	cpu	8080
+       2/       0 :                     
+       3/       0 :                     	org	0
+       4/       0 :                     
+       5/       0 : 3E 00               	mvi	a,0		;
+       6/       2 : C6 00               	adi	0		;A=0  S=0 Z=1 P=1 C=0
+       7/       4 : C6 01               	adi	1		;A=1  S=0 Z=0 P=0 C=0
+       8/       6 : 2F                  	cma			;A=FE
+       9/       7 : 2F                  	cma			;A=1
+      10/       8 : C6 01               	adi	1		;A=2  S=0 Z=0 P=0 C=0
+      11/       A : C6 01               	adi	1		;A=3  S=0 Z=0 P=1 Z=0
+      12/       C : C6 80               	adi	80h;		;A=83 S=1 Z=0 P=0 C=0
+      13/       E : C6 80               	adi	80h;		;A=03 S=0 Z=0 P=1 C=1
+      14/      10 : 06 11               	mvi	b,11h;		;B=11 S=0 Z=0 P=1 C=1
+      15/      12 : 88                  	adc	b		;A=15 S=0 Z=0 P=1 C=0
+      16/      13 : 21 00 10            	lxi	h,1000h	
+      17/      16 : 36 46               	mvi	m,46h		;(HL:1000H)=46H
+      18/      18 : 86                  	add	m		;A=5B S=0 Z=0 P=0 C=0
+      19/      19 : 06 17               	mvi	b,17h		;B=17
+      20/      1B : 80                  	add	b		;A=72 S=0 Z=0 P=1 C=0
+      21/      1C : C6 04               	adi	4		;A=76 S=0 Z=0 P=0 C=0
+      22/      1E :                     
+      23/      1E : 31 FF FF            	lxi	sp,0ffffh
+      24/      21 : 3B                  	dcx	sp		;SP=fffe
+      25/      22 : CD 26 00            	call	test1
+      26/      25 : 76                  	hlt
+      27/      26 :                     
+      28/      26 :                     test1:
+      29/      26 : 01 34 12            	lxi	b,1234h		;BC=1234
+      30/      29 : 60                  	mov	h,b
+      31/      2A : 69                  	mov	l,c		;HL=1234
+      32/      2B : 5E                  	mov	e,m		;E=55
+      33/      2C :                     ;
+      34/      2C : 16 AA               	mvi	d,0aah		;D=AA
+      35/      2E : 36 44               	mvi	m,44h		;$1234 = 44
+      36/      30 : 3A 34 12            	lda	1234h		;A=44
+      37/      33 : 32 00 20            	sta	2000h		;$2000 = 44
+      38/      36 : 21 00 20            	lxi	h,2000h		;HL=2000
+      39/      39 : 5E                  	mov	e,m		;E=44
+      40/      3A :                     ;
+      41/      3A : 3E 00               	mvi	a,0		;A=0
+      42/      3C : 01 00 20            	lxi	b,2000h		;BC=2000
+      43/      3F : 0A                  	ldax	b		;A=44
+      44/      40 :                     ;
+      45/      40 : 0B                  	dcx	b		;BC=1FFF
+      46/      41 : 03                  	inx	b		;BC=2000
+      47/      42 :                     ;
+      48/      42 : 19                  	dad	d		;HL=CA44
+      49/      43 : 09                  	dad	b		;HL=EA44
+      50/      44 : 09                  	dad	b		;HL=0A44 CY=1
+      51/      45 : C9                  	ret
+      52/      46 :                     ;
+      53/      46 :                     $$loop
+      54/      46 : 3F                  	cmc			;CY=0
+      55/      47 : 37                  	stc			;CY=1
+      56/      48 : C3 46 00            	jmp	$$loop
+      57/      4B :                     
+      58/      4B : C9                  	ret
+      59/      4C :                     
+      60/    1234 :                     	org	1234h
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 2 - 6/11/2014 17:07:23
+
+
+      61/    1234 : 55                  	db	55h
+      62/    1235 :                     
+      63/    1235 :                     
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 3 - 6/11/2014 17:07:23
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE : i386-unknown-freebsd - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   6/11/2014 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - |  LOOP3 :                         46 C |
+*MACEXP :                         1 - | *MOMCPU :                      8080 - |
+*MOMCPUNAME :                  8080 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - |  TEST1 :                         26 C |
+*TIME :                    17:07:23 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     30 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 32] - source file ex1.asm - page 4 - 6/11/2014 17:07:23
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.03 seconds assembly time
+
+     63 lines source file
+      2 passes
+      0 errors
+      0 warnings

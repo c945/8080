@@ -1,0 +1,57 @@
+ AS V1.42 Beta [Bld 32] - source file t_inr.asm - page 1 - 6/11/2014 17:07:31
+
+
+       1/       0 :                     	cpu	8080
+       2/       0 :                     	org	0
+       3/       0 : 16 FF               	mvi	d,0ffh		;D=FF
+       4/       2 : 14                  	inr	d		;D=0  S=0 Z=1 P=1 C=0
+       5/       3 : 14                  	inr	d		;D=1  S=0 Z=0 P=0 C=0
+       6/       4 : 14                  	inr	d		;D=2  S=0 Z=0 P=0 C=0
+       7/       5 : 14                  	inr	d		;D=3  S=0 Z=0 P=1 C=0
+       8/       6 : 21 00 80            	lxi	h,8000H
+       9/       9 : 36 7E               	mvi	m,07eh;		;(HL)=7E
+      10/       B : 34                  	inr	m		;(HL)=7F S=0 Z=0 P=0 C=0
+      11/       C : 34                  	inr	m		;(HL)=80 S=1 Z=0 P=0 C=0 (AC=1)
+      12/       D :                     
+      13/       D : 76                  	hlt
+      14/       E :                     
+ AS V1.42 Beta [Bld 32] - source file t_inr.asm - page 2 - 6/11/2014 17:07:31
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE : i386-unknown-freebsd - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   6/11/2014 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8080 - | *MOMCPUNAME :                  8080 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*TIME :                    17:07:31 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     28 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 32] - source file t_inr.asm - page 3 - 6/11/2014 17:07:31
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.01 seconds assembly time
+
+     14 lines source file
+      1 pass
+      0 errors
+      0 warnings
